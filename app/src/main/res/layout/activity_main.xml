@@ -40,5 +40,10 @@
         android:layout_alignParentRight="true"
         android:onClick="sendMessage" />
 
+    <org.codeandmagic.android.gauge.GaugeView
+        android:id="@+id/gauge_view1"
+        android:layout_width="200dp"
+        android:layout_height="200dp" />
+
 </RelativeLayout>
 

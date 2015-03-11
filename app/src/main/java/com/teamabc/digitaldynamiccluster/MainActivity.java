@@ -1,14 +1,9 @@
 package com.teamabc.digitaldynamiccluster;
 
-import android.content.ClipData;
-import android.content.ClipDescription;
+
 import android.content.Intent;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,13 +14,19 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import org.codeandmagic.android.gauge.GaugeView;
+
+import java.util.Random;
+
 
 public class MainActivity extends ActionBarActivity {
     public final static String EXTRA_MESSAGE = "com.teamabc.digitaldynamiccluster.MESSAGE";
     private ImageView imageView;
     private ViewGroup rootLayout;
+    private GaugeView gaugeView;
     private int _xDelta;
     private int _yDelta;
+    private final Random RAND = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +36,14 @@ public class MainActivity extends ActionBarActivity {
         // Set up listener for long click
         imageView = (ImageView) findViewById(R.id.image_view);
         rootLayout = (ViewGroup) findViewById(R.id.root_view);
-        imageView.setOnTouchListener(new View.OnTouchListener() {
+        gaugeView = (GaugeView) findViewById(R.id.gauge_view1);
+        mTimer.start();
+        gaugeView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 final int X = (int) event.getRawX();
                 final int Y = (int) event.getRawY();
-                switch (event.getAction() & MotionEvent.ACTION_MASK) {
+                switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
                         RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
                         _xDelta = X - lParams.leftMargin;
@@ -111,6 +114,17 @@ public class MainActivity extends ActionBarActivity {
         }
     }
     */
+
+    private final CountDownTimer mTimer = new CountDownTimer(30000, 1000) {
+
+        @Override
+        public void onTick(final long millisUntilFinished) {
+            gaugeView.setTargetValue(RAND.nextInt(101));
+        }
+
+        @Override
+        public void onFinish() {}
+    };
 
     public void sendMessage(View view) {
         Intent intent = new Intent(this, SendMessageActivity.class);
