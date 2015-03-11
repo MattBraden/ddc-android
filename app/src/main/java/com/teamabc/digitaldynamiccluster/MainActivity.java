@@ -21,9 +21,9 @@ import java.util.Random;
 
 public class MainActivity extends ActionBarActivity {
     public final static String EXTRA_MESSAGE = "com.teamabc.digitaldynamiccluster.MESSAGE";
-    private ImageView imageView;
     private ViewGroup rootLayout;
     private GaugeView gaugeView;
+    private ImageView imageView;
     private int _xDelta;
     private int _yDelta;
     private final Random RAND = new Random();
@@ -38,36 +38,8 @@ public class MainActivity extends ActionBarActivity {
         rootLayout = (ViewGroup) findViewById(R.id.root_view);
         gaugeView = (GaugeView) findViewById(R.id.gauge_view1);
         mTimer.start();
-        gaugeView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                final int X = (int) event.getRawX();
-                final int Y = (int) event.getRawY();
-                switch (event.getActionMasked()) {
-                    case MotionEvent.ACTION_DOWN:
-                        RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
-                        _xDelta = X - lParams.leftMargin;
-                        _yDelta = Y - lParams.topMargin;
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        break;
-                    case MotionEvent.ACTION_POINTER_DOWN:
-                        break;
-                    case MotionEvent.ACTION_POINTER_UP:
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) v.getLayoutParams();
-                        layoutParams.leftMargin = X - _xDelta;
-                        layoutParams.topMargin = Y - _yDelta;
-                        layoutParams.rightMargin = -250;
-                        layoutParams.bottomMargin = -250;
-                        v.setLayoutParams(layoutParams);
-                        break;
-                }
-                rootLayout.invalidate();
-                return true;
-            }
-        });
+        gaugeView.setOnTouchListener(new ViewMove());
+        imageView.setOnTouchListener(new ViewMove());
     }
 
     @Override
@@ -132,5 +104,58 @@ public class MainActivity extends ActionBarActivity {
         String message = editText.getText().toString();
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
+    }
+
+    public void addGauge(View view) {
+        GaugeView newGauge = new GaugeView(this);
+
+        // Add new gauge to root layer
+        rootLayout = (ViewGroup) findViewById(R.id.root_view);
+        rootLayout.addView(newGauge);
+        newGauge.bringToFront();
+
+        // Set initial size and position
+        newGauge.setOnTouchListener(new ViewMove());
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) newGauge.getLayoutParams();
+        layoutParams.leftMargin = 0;
+        layoutParams.topMargin = 0;
+        layoutParams.width = 200;
+        layoutParams.height = 200;
+        newGauge.setLayoutParams(layoutParams);
+    }
+
+    public class ViewMove implements View.OnTouchListener {
+        private ViewGroup rootLayout = (ViewGroup) findViewById(R.id.root_view);
+        private int _xDelta;
+        private int _yDelta;
+
+        @Override
+        public boolean onTouch(View view, MotionEvent event) {
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                    _xDelta = X - lParams.leftMargin;
+                    _yDelta = Y - lParams.topMargin;
+                    break;
+                case MotionEvent.ACTION_UP:
+                    break;
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    break;
+                case MotionEvent.ACTION_POINTER_UP:
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                    layoutParams.leftMargin = X - _xDelta;
+                    layoutParams.topMargin = Y - _yDelta;
+                    layoutParams.rightMargin = -250;
+                    layoutParams.bottomMargin = -250;
+                    view.setLayoutParams(layoutParams);
+                    break;
+            }
+            rootLayout.invalidate();
+            return true;
+        }
     }
 }

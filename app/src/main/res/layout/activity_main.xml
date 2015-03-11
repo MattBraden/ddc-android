@@ -25,6 +25,7 @@
         android:src="@drawable/ic_launcher"
         android:layout_below="@+id/edit_message"/>
 
+    <!--
     <EditText android:id="@+id/edit_message"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -39,11 +40,19 @@
         android:text="@string/button_send"
         android:layout_alignParentRight="true"
         android:onClick="sendMessage" />
-
+    -->
     <org.codeandmagic.android.gauge.GaugeView
         android:id="@+id/gauge_view1"
         android:layout_width="200dp"
         android:layout_height="200dp" />
+
+    <Button
+        android:id="@+id/add_gauge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/add_gauge"
+        android:layout_alignParentRight="true"
+        android:onClick="addGauge" />
 
 </RelativeLayout>
 
