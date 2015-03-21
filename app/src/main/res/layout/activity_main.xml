@@ -13,17 +13,11 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:gauge="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal">
-
-    <ImageView
-        android:id="@+id/image_view"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:src="@drawable/ic_launcher"
-        android:layout_below="@+id/edit_message"/>
 
     <!--
     <EditText android:id="@+id/edit_message"
@@ -41,18 +35,84 @@
         android:layout_alignParentRight="true"
         android:onClick="sendMessage" />
     -->
+    <!--
     <org.codeandmagic.android.gauge.GaugeView
-        android:id="@+id/gauge_view1"
+        android:id="@+id/gauge_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        gauge:showOuterShadow="true"
+        gauge:showOuterRim="false" />
+    <ImageView
+        android:id="@+id/gauge_resize"
+        android:src="@drawable/ic_action_resize"
+        android:layout_alignRight="@id/gauge_view"
+        android:layout_alignBottom="@id/gauge_view"
+        android:layout_width="25dp"
+        android:layout_height="25dp" />
+     -->
+    <RelativeLayout
+        android:id="@+id/gauge_layout"
         android:layout_width="200dp"
-        android:layout_height="200dp" />
+        android:layout_height="200dp"
+        android:background="@null">
+        <org.codeandmagic.android.gauge.GaugeView
+            android:id="@+id/gauge_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            gauge:showOuterShadow="true"
+            gauge:showOuterRim="false" />
+        <ImageView
+            android:id="@+id/gauge_resize"
+            android:src="@drawable/ic_action_resize"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
+    </RelativeLayout>
 
-    <Button
-        android:id="@+id/add_gauge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/add_gauge"
-        android:layout_alignParentRight="true"
-        android:onClick="addGauge" />
+
+    <RelativeLayout
+        android:id="@+id/edit_view"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:visibility="visible">
+        <TextView
+            android:id="@+id/edit_text"
+            android:textSize="40sp"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:paddingRight="50dp"
+            android:text="@string/edit_view_text" />
+        <ImageButton
+            android:id="@+id/add_gauge"
+            android:src="@drawable/ic_action_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/edit_text"
+            android:onClick="addGauge" />
+        <ImageButton
+            android:id="@+id/edit_gauge"
+            android:src="@drawable/ic_action_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/add_gauge"
+            android:onClick="editGauge" />
+        <ImageButton
+            android:id="@+id/remove_gauge"
+            android:src="@drawable/ic_action_remove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/edit_gauge"
+            android:onClick="removeGauge" />
+        <ImageButton
+            android:id="@+id/save_view"
+            android:src="@drawable/ic_action_accept"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:onClick="saveView" />
+    </RelativeLayout>
 
 </RelativeLayout>
 

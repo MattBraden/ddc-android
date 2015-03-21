@@ -1,16 +1,17 @@
 package com.teamabc.digitaldynamiccluster;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
@@ -18,28 +19,22 @@ import org.codeandmagic.android.gauge.GaugeView;
 
 import java.util.Random;
 
-
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
     public final static String EXTRA_MESSAGE = "com.teamabc.digitaldynamiccluster.MESSAGE";
     private ViewGroup rootLayout;
+    private ViewGroup gaugeViewLayout;
     private GaugeView gaugeView;
     private ImageView imageView;
-    private int _xDelta;
-    private int _yDelta;
+    private ViewGroup focusedGauge = null;
     private final Random RAND = new Random();
+    private static final String TAG = "SendMessageActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Set up listener for long click
-        imageView = (ImageView) findViewById(R.id.image_view);
-        rootLayout = (ViewGroup) findViewById(R.id.root_view);
-        gaugeView = (GaugeView) findViewById(R.id.gauge_view1);
-        mTimer.start();
-        gaugeView.setOnTouchListener(new ViewMove());
-        imageView.setOnTouchListener(new ViewMove());
+        // TODO: Setup default layout
     }
 
     @Override
@@ -98,6 +93,7 @@ public class MainActivity extends ActionBarActivity {
         public void onFinish() {}
     };
 
+    /*
     public void sendMessage(View view) {
         Intent intent = new Intent(this, SendMessageActivity.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
@@ -105,23 +101,84 @@ public class MainActivity extends ActionBarActivity {
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
     }
+    */
 
     public void addGauge(View view) {
-        GaugeView newGauge = new GaugeView(this);
+        ViewGroup newGauge = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(R.layout.gauge_layout, null);
 
         // Add new gauge to root layer
         rootLayout = (ViewGroup) findViewById(R.id.root_view);
         rootLayout.addView(newGauge);
         newGauge.bringToFront();
 
-        // Set initial size and position
+        // Set up listeners
         newGauge.setOnTouchListener(new ViewMove());
+        newGauge.getChildAt(1).setOnTouchListener(new ViewResize(newGauge));
+
+        // Set initial size and position
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) newGauge.getLayoutParams();
         layoutParams.leftMargin = 0;
         layoutParams.topMargin = 0;
-        layoutParams.width = 200;
-        layoutParams.height = 200;
+        layoutParams.width = 300;
+        layoutParams.height = 300;
         newGauge.setLayoutParams(layoutParams);
+    }
+
+    public void removeGauge(View view) {
+
+    }
+
+    public void editGauge(View view) {
+
+    }
+
+    public class ViewResize implements View.OnTouchListener {
+        private View resizeView;
+        public ViewResize (View resizeView) {
+            this.resizeView = resizeView;
+        }
+
+        float centerX, centerY, startR, startScale, startX, startY;
+
+        @Override
+        public boolean onTouch(View v, MotionEvent e) {
+            View dragHandle = v;
+            if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                focusedGauge = (ViewGroup) v.getParent();
+
+                // calculate center of image
+                centerX = (resizeView.getLeft() + resizeView.getRight()) / 2f;
+                centerY = (resizeView.getTop() + resizeView.getBottom()) / 2f;
+
+                // recalculate coordinates of starting point
+                startX = e.getRawX() - dragHandle.getX() + centerX;
+                startY = e.getRawY() - dragHandle.getY() + centerY;
+
+                // get starting distance and scale
+                startR = (float) Math.hypot(e.getRawX() - startX, e.getRawY() - startY);
+                startScale = resizeView.getScaleX();
+
+            } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
+
+                // calculate new distance
+                float newR = (float) Math.hypot(e.getRawX() - startX, e.getRawY() - startY);
+
+                // set new scale
+                float newScale = newR / startR * startScale;
+                resizeView.setScaleX(newScale);
+                resizeView.setScaleY(newScale);
+
+               // TODO: Scale the gauge nicely
+
+                // move handler image
+                //dragHandle.setX(centerX + resizeView.getWidth()/2f * newScale);
+                //dragHandle.setY(centerY + resizeView.getHeight()/2f * newScale);
+
+            } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                focusedGauge = null;
+            }
+            return true;
+        }
     }
 
     public class ViewMove implements View.OnTouchListener {
@@ -149,12 +206,12 @@ public class MainActivity extends ActionBarActivity {
                     RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
                     layoutParams.leftMargin = X - _xDelta;
                     layoutParams.topMargin = Y - _yDelta;
-                    layoutParams.rightMargin = -250;
-                    layoutParams.bottomMargin = -250;
+                    layoutParams.rightMargin = -2500;
+                    layoutParams.bottomMargin = -2500;
                     view.setLayoutParams(layoutParams);
                     break;
             }
-            rootLayout.invalidate();
+            view.invalidate();
             return true;
         }
     }

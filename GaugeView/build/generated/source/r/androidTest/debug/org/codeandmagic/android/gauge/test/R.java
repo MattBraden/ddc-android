@@ -20,7 +20,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int divisions=0x7f010013;
+        public static final int divisions=0x7f010012;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -28,7 +28,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int innerRimBorderWidth=0x7f01000c;
+        public static final int innerRimBorderWidth=0x7f01000b;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -36,7 +36,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int innerRimWidth=0x7f01000b;
+        public static final int innerRimWidth=0x7f01000a;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -44,7 +44,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int needleHeight=0x7f01000e;
+        public static final int needleHeight=0x7f01000d;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -52,7 +52,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int needleWidth=0x7f01000d;
+        public static final int needleWidth=0x7f01000c;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -60,7 +60,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int outerBorderWidth=0x7f010009;
+        public static final int outerBorderWidth=0x7f010008;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -68,7 +68,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int outerRimWidth=0x7f01000a;
+        public static final int outerRimWidth=0x7f010009;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -76,15 +76,15 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int outerShadowWidth=0x7f010008;
+        public static final int outerShadowWidth=0x7f010007;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static final int rangeColors=0x7f010016;
+        public static final int rangeColors=0x7f010015;
         /** <p>Must be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
          */
-        public static final int rangeValues=0x7f010015;
+        public static final int rangeValues=0x7f010014;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -92,7 +92,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int scaleEndValue=0x7f010011;
+        public static final int scaleEndValue=0x7f010010;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -100,7 +100,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int scalePosition=0x7f01000f;
+        public static final int scalePosition=0x7f01000e;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -108,7 +108,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int scaleStartAngle=0x7f010012;
+        public static final int scaleStartAngle=0x7f010011;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -116,7 +116,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int scaleStartValue=0x7f010010;
+        public static final int scaleStartValue=0x7f01000f;
         /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -173,14 +173,6 @@ theme attribute (in the form
 containing a value of this type.
          */
         public static final int showScale=0x7f010005;
-        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-         */
-        public static final int showText=0x7f010007;
         /** <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -188,7 +180,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int subdivisions=0x7f010014;
+        public static final int subdivisions=0x7f010013;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -197,12 +189,12 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int textShadowColor=0x7f01001d;
+        public static final int textShadowColor=0x7f01001c;
         /** <p>May be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
 <p>May be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
          */
-        public static final int textUnit=0x7f01001a;
+        public static final int textUnit=0x7f010019;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -211,7 +203,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int textUnitColor=0x7f01001b;
+        public static final int textUnitColor=0x7f01001a;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -219,12 +211,12 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int textUnitSize=0x7f01001c;
+        public static final int textUnitSize=0x7f01001b;
         /** <p>May be a reference to another resource, in the form "<code>@[+][<i>package</i>:]<i>type</i>:<i>name</i></code>"
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
 <p>May be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
          */
-        public static final int textValue=0x7f010017;
+        public static final int textValue=0x7f010016;
         /** <p>Must be a color value, in the form of "<code>#<i>rgb</i></code>", "<code>#<i>argb</i></code>",
 "<code>#<i>rrggbb</i></code>", or "<code>#<i>aarrggbb</i></code>".
 <p>This may also be a reference to a resource (in the form
@@ -233,7 +225,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int textValueColor=0x7f010018;
+        public static final int textValueColor=0x7f010017;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -241,7 +233,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int textValueSize=0x7f010019;
+        public static final int textValueSize=0x7f010018;
     }
     public static final class drawable {
         public static final int brushed_alu=0x7f020000;
@@ -277,7 +269,6 @@ containing a value of this type.
            <tr><td><code>{@link #GaugeView_showOuterShadow org.codeandmagic.android.gauge.test:showOuterShadow}</code></td><td></td></tr>
            <tr><td><code>{@link #GaugeView_showRanges org.codeandmagic.android.gauge.test:showRanges}</code></td><td></td></tr>
            <tr><td><code>{@link #GaugeView_showScale org.codeandmagic.android.gauge.test:showScale}</code></td><td></td></tr>
-           <tr><td><code>{@link #GaugeView_showText org.codeandmagic.android.gauge.test:showText}</code></td><td></td></tr>
            <tr><td><code>{@link #GaugeView_subdivisions org.codeandmagic.android.gauge.test:subdivisions}</code></td><td></td></tr>
            <tr><td><code>{@link #GaugeView_textShadowColor org.codeandmagic.android.gauge.test:textShadowColor}</code></td><td></td></tr>
            <tr><td><code>{@link #GaugeView_textUnit org.codeandmagic.android.gauge.test:textUnit}</code></td><td></td></tr>
@@ -308,7 +299,6 @@ containing a value of this type.
            @see #GaugeView_showOuterShadow
            @see #GaugeView_showRanges
            @see #GaugeView_showScale
-           @see #GaugeView_showText
            @see #GaugeView_subdivisions
            @see #GaugeView_textShadowColor
            @see #GaugeView_textUnit
@@ -326,7 +316,7 @@ containing a value of this type.
             0x7f010010, 0x7f010011, 0x7f010012, 0x7f010013,
             0x7f010014, 0x7f010015, 0x7f010016, 0x7f010017,
             0x7f010018, 0x7f010019, 0x7f01001a, 0x7f01001b,
-            0x7f01001c, 0x7f01001d
+            0x7f01001c
         };
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#divisions}
@@ -341,7 +331,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:divisions
         */
-        public static final int GaugeView_divisions = 19;
+        public static final int GaugeView_divisions = 18;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#innerRimBorderWidth}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -355,7 +345,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:innerRimBorderWidth
         */
-        public static final int GaugeView_innerRimBorderWidth = 12;
+        public static final int GaugeView_innerRimBorderWidth = 11;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#innerRimWidth}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -369,7 +359,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:innerRimWidth
         */
-        public static final int GaugeView_innerRimWidth = 11;
+        public static final int GaugeView_innerRimWidth = 10;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#needleHeight}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -383,7 +373,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:needleHeight
         */
-        public static final int GaugeView_needleHeight = 14;
+        public static final int GaugeView_needleHeight = 13;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#needleWidth}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -397,7 +387,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:needleWidth
         */
-        public static final int GaugeView_needleWidth = 13;
+        public static final int GaugeView_needleWidth = 12;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#outerBorderWidth}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -411,7 +401,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:outerBorderWidth
         */
-        public static final int GaugeView_outerBorderWidth = 9;
+        public static final int GaugeView_outerBorderWidth = 8;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#outerRimWidth}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -425,7 +415,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:outerRimWidth
         */
-        public static final int GaugeView_outerRimWidth = 10;
+        public static final int GaugeView_outerRimWidth = 9;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#outerShadowWidth}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -439,7 +429,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:outerShadowWidth
         */
-        public static final int GaugeView_outerShadowWidth = 8;
+        public static final int GaugeView_outerShadowWidth = 7;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#rangeColors}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -449,7 +439,7 @@ containing a value of this type.
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
           @attr name org.codeandmagic.android.gauge.test:rangeColors
         */
-        public static final int GaugeView_rangeColors = 22;
+        public static final int GaugeView_rangeColors = 21;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#rangeValues}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -459,7 +449,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>".
           @attr name org.codeandmagic.android.gauge.test:rangeValues
         */
-        public static final int GaugeView_rangeValues = 21;
+        public static final int GaugeView_rangeValues = 20;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#scaleEndValue}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -473,7 +463,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:scaleEndValue
         */
-        public static final int GaugeView_scaleEndValue = 17;
+        public static final int GaugeView_scaleEndValue = 16;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#scalePosition}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -487,7 +477,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:scalePosition
         */
-        public static final int GaugeView_scalePosition = 15;
+        public static final int GaugeView_scalePosition = 14;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#scaleStartAngle}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -501,7 +491,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:scaleStartAngle
         */
-        public static final int GaugeView_scaleStartAngle = 18;
+        public static final int GaugeView_scaleStartAngle = 17;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#scaleStartValue}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -515,7 +505,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:scaleStartValue
         */
-        public static final int GaugeView_scaleStartValue = 16;
+        public static final int GaugeView_scaleStartValue = 15;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#showInnerRim}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -615,20 +605,6 @@ containing a value of this type.
         */
         public static final int GaugeView_showScale = 5;
         /**
-          <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#showText}
-          attribute's value can be found in the {@link #GaugeView} array.
-
-
-          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-          @attr name org.codeandmagic.android.gauge.test:showText
-        */
-        public static final int GaugeView_showText = 7;
-        /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#subdivisions}
           attribute's value can be found in the {@link #GaugeView} array.
 
@@ -641,7 +617,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:subdivisions
         */
-        public static final int GaugeView_subdivisions = 20;
+        public static final int GaugeView_subdivisions = 19;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#textShadowColor}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -656,7 +632,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:textShadowColor
         */
-        public static final int GaugeView_textShadowColor = 29;
+        public static final int GaugeView_textShadowColor = 28;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#textUnit}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -667,7 +643,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <p>May be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
           @attr name org.codeandmagic.android.gauge.test:textUnit
         */
-        public static final int GaugeView_textUnit = 26;
+        public static final int GaugeView_textUnit = 25;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#textUnitColor}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -682,7 +658,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:textUnitColor
         */
-        public static final int GaugeView_textUnitColor = 27;
+        public static final int GaugeView_textUnitColor = 26;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#textUnitSize}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -696,7 +672,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:textUnitSize
         */
-        public static final int GaugeView_textUnitSize = 28;
+        public static final int GaugeView_textUnitSize = 27;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#textValue}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -707,7 +683,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
 <p>May be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
           @attr name org.codeandmagic.android.gauge.test:textValue
         */
-        public static final int GaugeView_textValue = 23;
+        public static final int GaugeView_textValue = 22;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#textValueColor}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -722,7 +698,7 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:textValueColor
         */
-        public static final int GaugeView_textValueColor = 24;
+        public static final int GaugeView_textValueColor = 23;
         /**
           <p>This symbol is the offset where the {@link org.codeandmagic.android.gauge.test.R.attr#textValueSize}
           attribute's value can be found in the {@link #GaugeView} array.
@@ -736,6 +712,6 @@ theme attribute (in the form
 containing a value of this type.
           @attr name org.codeandmagic.android.gauge.test:textValueSize
         */
-        public static final int GaugeView_textValueSize = 25;
+        public static final int GaugeView_textValueSize = 24;
     };
 }

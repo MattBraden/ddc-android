@@ -1,5 +1,6 @@
 package com.teamabc.digitaldynamiccluster;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbDeviceConnection;
@@ -19,7 +20,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-public class SendMessageActivity extends ActionBarActivity {
+public class SendMessageActivity extends Activity {
 
     private static final String TAG = "SendMessageActivity";
     @Override
