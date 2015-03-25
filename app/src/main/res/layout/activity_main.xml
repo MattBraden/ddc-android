@@ -17,58 +17,8 @@
     android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
-
-    <!--
-    <EditText android:id="@+id/edit_message"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/send_message"
-        android:layout_alignParentLeft="true"
-        android:hint="@string/edit_message"/>
-
-    <Button
-        android:id="@+id/send_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_send"
-        android:layout_alignParentRight="true"
-        android:onClick="sendMessage" />
-    -->
-    <!--
-    <org.codeandmagic.android.gauge.GaugeView
-        android:id="@+id/gauge_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        gauge:showOuterShadow="true"
-        gauge:showOuterRim="false" />
-    <ImageView
-        android:id="@+id/gauge_resize"
-        android:src="@drawable/ic_action_resize"
-        android:layout_alignRight="@id/gauge_view"
-        android:layout_alignBottom="@id/gauge_view"
-        android:layout_width="25dp"
-        android:layout_height="25dp" />
-     -->
-    <RelativeLayout
-        android:id="@+id/gauge_layout"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:background="@null">
-        <org.codeandmagic.android.gauge.GaugeView
-            android:id="@+id/gauge_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            gauge:showOuterShadow="true"
-            gauge:showOuterRim="false" />
-        <ImageView
-            android:id="@+id/gauge_resize"
-            android:src="@drawable/ic_action_resize"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_width="30dp"
-            android:layout_height="30dp" />
-    </RelativeLayout>
+    android:orientation="horizontal"
+    android:background="@color/material_blue_grey_950">
 
 
     <RelativeLayout
@@ -76,20 +26,13 @@
         android:layout_width="fill_parent"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:visibility="visible">
-        <TextView
-            android:id="@+id/edit_text"
-            android:textSize="40sp"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:paddingRight="50dp"
-            android:text="@string/edit_view_text" />
+        android:visibility="visible"
+        android:background="@color/accent_material_light">
         <ImageButton
             android:id="@+id/add_gauge"
             android:src="@drawable/ic_action_new"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/edit_text"
             android:onClick="addGauge" />
         <ImageButton
             android:id="@+id/edit_gauge"

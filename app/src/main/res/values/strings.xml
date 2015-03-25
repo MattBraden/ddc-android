@@ -5,6 +5,24 @@
     <string name="button_send">Send</string>
     <string name="send_message">Send Message</string>
     <string name="edit_view_text">Edit</string>
+    <string name="add_gauge">Add Gauge</string>
+
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="gauge_type_select">Type</string>
+    <string name="gauge_style_select">Style</string>
+
+    <string-array name="gauge_types">
+        <item>RPM</item>
+        <item>Speed</item>
+        <item>Coolant Temp</item>
+    </string-array>
+
+    <string-array name="gauge_styles">
+        <item>sytle 1</item>
+        <item>style 2</item>
+    </string-array>
 
     <string name="action_settings">Settings</string>
     <string name="action_search">Search</string>
