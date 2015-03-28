@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,6 +26,7 @@ import java.util.Random;
 
 public class MainActivity extends Activity {
     public final static String EXTRA_MESSAGE = "com.teamabc.digitaldynamiccluster.MESSAGE";
+    final GaugeData gaugeData = new GaugeData(this);
     private ViewGroup rootLayout;
     private ViewGroup gaugeViewLayout;
     private GaugeView gaugeView;
@@ -86,17 +88,6 @@ public class MainActivity extends Activity {
     }
     */
 
-    private final CountDownTimer mTimer = new CountDownTimer(30000, 1000) {
-
-        @Override
-        public void onTick(final long millisUntilFinished) {
-            gaugeView.setTargetValue(RAND.nextInt(101));
-        }
-
-        @Override
-        public void onFinish() {}
-    };
-
     /*
     public void sendMessage(View view) {
         Intent intent = new Intent(this, SendMessageActivity.class);
@@ -115,48 +106,34 @@ public class MainActivity extends Activity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.add_gauge);
 
-        /*
-        // Gauge Type Select Spinner
-        Spinner spinner = (Spinner) addGaugeView.findViewById(R.id.gauge_type_select);
-        // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.gauge_types, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        spinner.setAdapter(adapter);
-
-        // Gauge Type Select Spinner
-        spinner = (Spinner) addGaugeView.findViewById(R.id.gauge_style_select);
-        adapter = ArrayAdapter.createFromResource(this,
-                R.array.gauge_styles, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        */
-
         // Set custom view
         builder.setView(addGaugeView);
         // Add the buttons
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
-                ViewGroup newGauge = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(R.layout.gauge_layout, null);
+                // Create new gauge view
+                Gauge newGauge = new Gauge();
+                ViewGroup newGaugeView = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(R.layout.gauge_layout, null);
 
                 // Add new gauge to root layer
                 rootLayout = (ViewGroup) findViewById(R.id.root_view);
-                rootLayout.addView(newGauge);
-                newGauge.bringToFront();
+                rootLayout.addView(newGaugeView);
+                newGaugeView.bringToFront();
 
                 // Set up listeners
-                newGauge.setOnTouchListener(new ViewMove());
-                newGauge.getChildAt(1).setOnTouchListener(new ViewResize(newGauge));
+                newGaugeView.setOnTouchListener(new ViewMove());
+                newGaugeView.getChildAt(1).setOnTouchListener(new ViewResize(newGaugeView));
                 // Set initial size and position
-                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) newGauge.getLayoutParams();
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) newGaugeView.getLayoutParams();
                 layoutParams.leftMargin = 0;
                 layoutParams.topMargin = 0;
                 layoutParams.width = 300;
                 layoutParams.height = 300;
-                newGauge.setLayoutParams(layoutParams);
+                newGaugeView.setLayoutParams(layoutParams);
+
+                newGauge.setView(newGaugeView);
+                gaugeData.addObserver(newGauge);
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -176,6 +153,19 @@ public class MainActivity extends Activity {
     }
 
     public void editGauge(View view) {
+        if (gaugeData.setupUSB() == false) {
+            return;
+        }
+            gaugeData.setupUSB();
+        final Handler h = new Handler();
+        final int delay = 1000; //milliseconds
+
+        h.postDelayed(new Runnable(){
+            public void run(){
+                gaugeData.readData();
+                h.postDelayed(this, delay);
+            }
+        }, delay);
     }
 
     public class ViewResize implements View.OnTouchListener {
