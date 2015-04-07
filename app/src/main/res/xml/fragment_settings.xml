@@ -1,0 +1,32 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/pref_category_title_connection">
+
+         <ListPreference
+            android:key="pref_connect_type"
+            android:title="@string/pref_title_connection_type"
+            android:summary="%s"
+            android:dialogTitle="@string/pref_title_connection_type"
+            android:entries="@array/pref_entries_connection_types"
+            android:entryValues="@array/pref_entries_connection_types"
+            android:defaultValue="@string/pref_default_connection_type" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_category_title_gauges">
+
+        <ListPreference
+            android:key="pref_temperature_unit"
+            android:title="@string/pref_title_temperature_unit"
+            android:summary="%s"
+            android:dialogTitle="@string/pref_title_temperature_unit"
+            android:entries="@array/pref_entries_temperature_units"
+            android:entryValues="@array/pref_entries_temperature_units"
+            android:defaultValue="@string/pref_default_temperature_unit" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

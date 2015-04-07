@@ -13,6 +13,8 @@
     <string name="gauge_type_select">Type</string>
     <string name="gauge_style_select">Style</string>
 
+    <string name="refreshing">Refreshing...</string>
+
     <string-array name="gauge_types">
         <item>RPM</item>
         <item>Speed</item>
@@ -24,17 +26,49 @@
         <item>style 2</item>
     </string-array>
 
+    <!-- Menu actions -->
     <string name="action_settings">Settings</string>
     <string name="action_search">Search</string>
     <string name="action_about">About</string>
+    <string name="action_connect">Connect</string>
 
     <string name="title_activity_main">Main</string>
     <string name="title_activity_display_message">Display Message</string>
     <string name="title_activity_send_message">Send</string>
     <string name="title_activity_about">About</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_connect_usb">USB Connect</string>
 
+
+    <!-- Preferences/Settings -->
+    <string name="pref_category_title_connection">Connection</string>
+    <string name="pref_title_connection_type">Connection Type</string>
+    <string-array name="pref_entries_connection_types">
+        <item>USB</item>
+        <item>Bluetooth</item>
+    </string-array>
+    <string name="pref_default_connection_type">USB</string>
+
+    <string name="pref_category_title_gauges">Gauge</string>
+    <string name="pref_title_temperature_unit">Temperature Unit</string>
+    <string-array name="pref_entries_temperature_units">
+        <item>Fahrenheit</item>
+        <item>Celsius</item>
+    </string-array>
+    <string name="pref_default_temperature_unit">Fahrenheit</string>
+
+    <!-- About -->
     <string name="about_description">Digital Dynamic Cluster was created for Senior Thesis Design</string>
     <string name="about_contributors_title">Contributors</string>
     <string name="about_contributors">Jacob Anderson\nMatt Braden\nKenton Carson</string>
+
+
+    <string name="title_activity_device_list">DeviceListActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_serial_console">SerialConsoleActivity</string>
+    <string name="title_activity_connect">Connect</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

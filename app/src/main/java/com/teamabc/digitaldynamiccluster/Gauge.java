@@ -3,6 +3,7 @@ package com.teamabc.digitaldynamiccluster;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.codeandmagic.android.gauge.GaugeView;
 
@@ -24,7 +25,6 @@ public class Gauge implements Observer {
     @Override
     public void update(Observable observable, Object data) {
         // update gauge
-        Log.d(TAG, "Updating observer!");
         ((GaugeView) view.getChildAt(0)).setTargetValue(RAND.nextInt(101));
     }
 

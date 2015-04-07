@@ -3,8 +3,11 @@ package com.teamabc.digitaldynamiccluster;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -18,14 +21,25 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.hoho.android.usbserial.driver.UsbSerialPort;
+import com.hoho.android.usbserial.util.HexDump;
+import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
 import org.codeandmagic.android.gauge.GaugeView;
 
+import java.io.IOException;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends Activity {
     public final static String EXTRA_MESSAGE = "com.teamabc.digitaldynamiccluster.MESSAGE";
+    private static final String TAG = "MainActivity";
     final GaugeData gaugeData = new GaugeData(this);
     private ViewGroup rootLayout;
     private ViewGroup gaugeViewLayout;
@@ -33,12 +47,16 @@ public class MainActivity extends Activity {
     private ImageView imageView;
     private ViewGroup focusedGauge = null;
     private final Random RAND = new Random();
-    private static final String TAG = "MainActivity";
+
+    private TextView mTvSerial;
+    private static UsbSerialPort sPort = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mTvSerial = (TextView) findViewById(R.id.TextView1);// Android TextView
 
         // TODO: Setup default layout
     }
@@ -59,34 +77,20 @@ public class MainActivity extends Activity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
-        if (id == R.id.action_about) {
+        else if (id == R.id.action_about) {
             Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+        }
+        else if (id == R.id.action_connect) {
+            Intent intent = new Intent(this, ConnectActivity.class);
             startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-    /*
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (hasFocus) {
-                getWindow().getDecorView()
-                        .setSystemUiVisibility(
-                                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                                | View.SYSTEM_UI_FLAG_IMMERSIVE);
-            }
-        }
-    }
-    */
 
     /*
     public void sendMessage(View view) {
@@ -149,23 +153,122 @@ public class MainActivity extends Activity {
     }
 
     public void removeGauge(View view) {
-        // TODO: remove from view and observer list
+        Intent intent = new Intent(this, DeviceListActivity.class);
+        startActivity(intent);
+    }
+
+    public void saveView(View view) {
+        mTvSerial.append("Test");
     }
 
     public void editGauge(View view) {
-        if (gaugeData.setupUSB() == false) {
-            return;
-        }
-            gaugeData.setupUSB();
-        final Handler h = new Handler();
-        final int delay = 1000; //milliseconds
 
-        h.postDelayed(new Runnable(){
-            public void run(){
-                gaugeData.readData();
-                h.postDelayed(this, delay);
+    }
+
+    private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
+
+    private SerialInputOutputManager mSerialIoManager;
+
+    private final SerialInputOutputManager.Listener mListener =
+            new SerialInputOutputManager.Listener() {
+
+                @Override
+                public void onRunError(Exception e) {
+                    Log.d(TAG, "Runner stopped.");
+                }
+
+                @Override
+                public void onNewData(final byte[] data) {
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MainActivity.this.updateReceivedData(data);
+                        }
+                    });
+                }
+            };
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopIoManager();
+        if (sPort != null) {
+            try {
+                sPort.close();
+            } catch (IOException e) {
+                // Ignore.
             }
-        }, delay);
+            sPort = null;
+        }
+        finish();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "Resumed, port=" + sPort);
+        if (sPort == null) {
+            mTvSerial.append("No serial device.");
+        } else {
+            final UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+
+            UsbDeviceConnection connection = usbManager.openDevice(sPort.getDriver().getDevice());
+            if (connection == null) {
+                mTvSerial.append("Opening device failed");
+                return;
+            }
+
+            try {
+                sPort.open(connection);
+                sPort.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+            } catch (IOException e) {
+                Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
+                mTvSerial.append("Error opening device: " + e.getMessage());
+                try {
+                    sPort.close();
+                } catch (IOException e2) {
+                    // Ignore.
+                }
+                sPort = null;
+                return;
+            }
+            mTvSerial.append("Serial device: " + sPort.getClass().getSimpleName());
+        }
+        onDeviceStateChange();
+    }
+
+    private void stopIoManager() {
+        if (mSerialIoManager != null) {
+            Log.i(TAG, "Stopping io manager ..");
+            mSerialIoManager.stop();
+            mSerialIoManager = null;
+        }
+    }
+
+    private void startIoManager() {
+        if (sPort != null) {
+            Log.i(TAG, "Starting io manager ..");
+            mSerialIoManager = new SerialInputOutputManager(sPort, mListener);
+            mExecutor.submit(mSerialIoManager);
+        }
+    }
+
+    private void onDeviceStateChange() {
+        stopIoManager();
+        startIoManager();
+    }
+
+    private void updateReceivedData(byte[] data) {
+        final String message = "Read " + data.length + " bytes: \n"
+                + HexDump.dumpHexString(data) + "\n\n";
+        mTvSerial.append(message);
+    }
+
+    static void show(Context context, UsbSerialPort port) {
+        sPort = port;
+        final Intent intent = new Intent(context, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
+        context.startActivity(intent);
     }
 
     public class ViewResize implements View.OnTouchListener {

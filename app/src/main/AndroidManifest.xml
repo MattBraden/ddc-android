@@ -15,6 +15,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
         </activity>
         <activity
             android:name=".DisplayMessageActivity"
@@ -28,13 +35,6 @@
             android:name=".SendMessageActivity"
             android:label="@string/title_activity_send_message"
             android:parentActivityName=".MainActivity" >
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-                android:resource="@xml/device_filter" />
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.teamabc.digitaldynamiccluster.MainActivity" />
@@ -46,6 +46,43 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.teamabc.digitaldynamiccluster.MainActivity" />
+        </activity>
+        <activity
+            android:name=".DeviceListActivity"
+            android:label="@string/title_activity_device_list" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </activity>
+        <activity
+            android:name=".SerialConsoleActivity"
+            android:label="@string/title_activity_serial_console" >
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.teamabc.digitaldynamiccluster.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ConnectActivity"
+            android:label="@string/title_activity_connect"
+            android:parentActivityName=".SettingsActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.teamabc.digitaldynamiccluster.SettingsActivity" />
         </activity>
     </application>
 
