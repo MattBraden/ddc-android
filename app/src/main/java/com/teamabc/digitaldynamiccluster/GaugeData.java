@@ -16,33 +16,24 @@ public class GaugeData extends Observable {
     private static final String TAG = "GaugeData";
     private ArrayList<Observer> gauges = new ArrayList<Observer>();
     private Context mContext;
-    private byte[] data = new byte[4096];
 
     public GaugeData(Context context) {
         this.mContext = context;
     }
 
-    public boolean setupUSB() {
-        return false;
-    }
+    public void updateData(byte[] data) {
+        int duration = Toast.LENGTH_SHORT;
 
-    public void sendData(String message) {
-
-    }
-
-    public void readData() {
-
+        CharSequence text = "Updated data!";
+        Toast toast = Toast.makeText(mContext, text, duration);
+        toast.show();
     }
 
     @Override
     public void notifyObservers() {
-        int duration = Toast.LENGTH_SHORT;
 
-        CharSequence text = "Update Observers!";
-        Toast toast = Toast.makeText(mContext, text, duration);
-        toast.show();
         for(Observer gauge: gauges) {
-            gauge.update(this, data);
+            //gauge.update(this, data);
         }
     }
 }

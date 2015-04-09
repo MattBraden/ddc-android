@@ -4,5 +4,5 @@
         android:radius="10dp"/>
     <stroke
         android:width="3dp"
-        android:color="@android:color/holo_red_light" />
+        android:color="@color/accent_material_light" />
 </shape>

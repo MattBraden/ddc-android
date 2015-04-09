@@ -16,6 +16,7 @@ import java.util.Random;
  */
 public class Gauge implements Observer {
     private static final String TAG = "Gauge";
+    private String type;
     private ViewGroup view;
     private final Random RAND = new Random();
 
@@ -28,6 +29,13 @@ public class Gauge implements Observer {
         ((GaugeView) view.getChildAt(0)).setTargetValue(RAND.nextInt(101));
     }
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getType() {
+        return this.type;
+    }
     public View getView() {
         return view;
     }

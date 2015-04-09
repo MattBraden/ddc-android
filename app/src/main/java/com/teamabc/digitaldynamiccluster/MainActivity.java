@@ -48,8 +48,13 @@ public class MainActivity extends Activity {
     private ViewGroup focusedGauge = null;
     private final Random RAND = new Random();
 
+
     private TextView mTvSerial;
     private static UsbSerialPort sPort = null;
+
+
+    // TODO: Implement Edit Mode
+    // TODO: Implement Focused Gauge
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +62,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         mTvSerial = (TextView) findViewById(R.id.TextView1);// Android TextView
-
         // TODO: Setup default layout
     }
 
@@ -152,18 +156,20 @@ public class MainActivity extends Activity {
         dialog.show();
     }
 
+    // TODO: Implement removeGauge functionality
     public void removeGauge(View view) {
         Intent intent = new Intent(this, DeviceListActivity.class);
         startActivity(intent);
     }
 
+    // TODO: Implement saveView functionality
     public void saveView(View view) {
         mTvSerial.append("Test");
     }
 
-    public void editGauge(View view) {
+    // TODO: Implement editGauge functionality
+    public void editGauge(View view) {}
 
-    }
 
     private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 
@@ -179,12 +185,13 @@ public class MainActivity extends Activity {
 
                 @Override
                 public void onNewData(final byte[] data) {
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            MainActivity.this.updateReceivedData(data);
-                        }
-                    });
+                   runOnUiThread(new Runnable() {
+                       @Override
+                       public void run() {
+                           gaugeData.updateData(data);
+                           //HexDump.dumpHexString(data)
+                       }
+                   });
                 }
             };
 
@@ -271,6 +278,7 @@ public class MainActivity extends Activity {
         context.startActivity(intent);
     }
 
+    // TODO: Scale the gauge nicely
     public class ViewResize implements View.OnTouchListener {
         private View resizeView;
         public ViewResize (View resizeView) {
@@ -309,7 +317,7 @@ public class MainActivity extends Activity {
 
             } else if (e.getAction() == MotionEvent.ACTION_UP) {
                 focusedGauge = null;
-                // TODO: Scale the gauge nicely
+
 
                 Log.d(TAG, "Resize Done!");
             }
@@ -328,11 +336,13 @@ public class MainActivity extends Activity {
             final int Y = (int) event.getRawY();
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
+                    view.setBackgroundResource(R.drawable.border_background);
                     RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
                     _xDelta = X - lParams.leftMargin;
                     _yDelta = Y - lParams.topMargin;
                     break;
                 case MotionEvent.ACTION_UP:
+                    view.setBackground(null);
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
                     break;
