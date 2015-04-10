@@ -14,6 +14,7 @@
     <ImageView
         android:id="@+id/gauge_resize"
         android:src="@drawable/ic_action_resize"
+        android:visibility="invisible"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_width="40dp"

@@ -25,22 +25,6 @@
                 android:resource="@xml/device_filter" />
         </activity>
         <activity
-            android:name=".DisplayMessageActivity"
-            android:label="@string/title_activity_display_message"
-            android:parentActivityName=".MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.teamabc.digitaldynamiccluster.MainActivity" />
-        </activity>
-        <activity
-            android:name=".SendMessageActivity"
-            android:label="@string/title_activity_send_message"
-            android:parentActivityName=".MainActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.teamabc.digitaldynamiccluster.MainActivity" />
-        </activity>
-        <activity
             android:name=".AboutActivity"
             android:label="@string/title_activity_about"
             android:parentActivityName=".MainActivity" >

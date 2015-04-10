@@ -40,29 +40,39 @@ import java.util.concurrent.Executors;
 public class MainActivity extends Activity {
     public final static String EXTRA_MESSAGE = "com.teamabc.digitaldynamiccluster.MESSAGE";
     private static final String TAG = "MainActivity";
+
     final GaugeData gaugeData = new GaugeData(this);
-    private ViewGroup rootLayout;
-    private ViewGroup gaugeViewLayout;
-    private GaugeView gaugeView;
-    private ImageView imageView;
+
+    private ViewGroup rootView;
+    private View editView;
     private ViewGroup focusedGauge = null;
-    private final Random RAND = new Random();
 
-
-    private TextView mTvSerial;
     private static UsbSerialPort sPort = null;
-
-
-    // TODO: Implement Edit Mode
-    // TODO: Implement Focused Gauge
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTvSerial = (TextView) findViewById(R.id.TextView1);// Android TextView
-        // TODO: Setup default layout
+        // TODO: Tutorial on first load?!
+
+        editView = findViewById(R.id.edit_view);
+        View rootView = findViewById(R.id.root_view);
+        rootView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                enableEdit();
+                Log.d(TAG, "enable edit");
+                return true;
+            }
+        });
+        rootView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                disableEdit();
+                Log.d(TAG, "disable edit");
+            }
+        });
     }
 
     @Override
@@ -96,16 +106,6 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    /*
-    public void sendMessage(View view) {
-        Intent intent = new Intent(this, SendMessageActivity.class);
-        EditText editText = (EditText) findViewById(R.id.edit_message);
-        String message = editText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
-    }
-    */
-
     public void addGauge(View view) {
         LayoutInflater li = LayoutInflater.from(this);
         View addGaugeView = li.inflate(R.layout.add_gauge, null);
@@ -124,14 +124,51 @@ public class MainActivity extends Activity {
                 Gauge newGauge = new Gauge();
                 ViewGroup newGaugeView = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(R.layout.gauge_layout, null);
 
+                GaugeView gauge = (GaugeView) newGaugeView.getChildAt(0);
+
                 // Add new gauge to root layer
-                rootLayout = (ViewGroup) findViewById(R.id.root_view);
-                rootLayout.addView(newGaugeView);
+                rootView = (ViewGroup) findViewById(R.id.root_view);
+                rootView.addView(newGaugeView);
                 newGaugeView.bringToFront();
 
                 // Set up listeners
-                newGaugeView.setOnTouchListener(new ViewMove());
+                // TODO: Not sure to comment this out or use it, causes bug but has better functionality...
+                newGaugeView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+
+                        // After a long click the gauge is focused
+                        //enableEdit();
+                        view.requestFocus();
+
+                        return true;
+                    }
+                });
+
+                newGaugeView.setFocusable(true);
+                newGaugeView.setFocusableInTouchMode(true);
+                newGaugeView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        if(hasFocus){
+                            enableEdit();
+                            focusedGauge = (ViewGroup) v;
+                            v.setBackgroundResource(R.drawable.border_background);
+                            v.setOnTouchListener(new ViewMove());
+                            ((ViewGroup) v).getChildAt(1).setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            focusedGauge = null;
+                            v.setBackground(null);
+                            v.setOnTouchListener(null);
+                            ((ViewGroup) v).getChildAt(1).setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });
+
+                // Set listener for resize
                 newGaugeView.getChildAt(1).setOnTouchListener(new ViewResize(newGaugeView));
+
                 // Set initial size and position
                 RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) newGaugeView.getLayoutParams();
                 layoutParams.leftMargin = 0;
@@ -156,21 +193,35 @@ public class MainActivity extends Activity {
         dialog.show();
     }
 
-    // TODO: Implement removeGauge functionality
-    public void removeGauge(View view) {
-        Intent intent = new Intent(this, DeviceListActivity.class);
-        startActivity(intent);
+    public void removeGauge(View v) {
+        // Remove focused gauge, dont care about view that was clicked
+        rootView.removeView(focusedGauge);
     }
 
     // TODO: Implement saveView functionality
     public void saveView(View view) {
-        mTvSerial.append("Test");
+
     }
 
     // TODO: Implement editGauge functionality
-    public void editGauge(View view) {}
+    public void editGauge(View view) {
 
+    }
 
+    private void enableEdit() {
+
+        editView.setVisibility(View.VISIBLE);
+    }
+
+    private void disableEdit() {
+        // TODO: Fix bug when you initially click before adding any gauges
+        rootView.setFocusable(true);
+        rootView.setFocusableInTouchMode(true);
+        rootView.requestFocus();
+        editView.setVisibility(View.INVISIBLE);
+    }
+
+    // ------------ Serial Data functions ------------------
     private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
 
     private SerialInputOutputManager mSerialIoManager;
@@ -215,13 +266,13 @@ public class MainActivity extends Activity {
         super.onResume();
         Log.d(TAG, "Resumed, port=" + sPort);
         if (sPort == null) {
-            mTvSerial.append("No serial device.");
+            //mTvSerial.append("No serial device.");
         } else {
             final UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
 
             UsbDeviceConnection connection = usbManager.openDevice(sPort.getDriver().getDevice());
             if (connection == null) {
-                mTvSerial.append("Opening device failed");
+                //mTvSerial.append("Opening device failed");
                 return;
             }
 
@@ -230,7 +281,7 @@ public class MainActivity extends Activity {
                 sPort.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
             } catch (IOException e) {
                 Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
-                mTvSerial.append("Error opening device: " + e.getMessage());
+                //mTvSerial.append("Error opening device: " + e.getMessage());
                 try {
                     sPort.close();
                 } catch (IOException e2) {
@@ -239,7 +290,7 @@ public class MainActivity extends Activity {
                 sPort = null;
                 return;
             }
-            mTvSerial.append("Serial device: " + sPort.getClass().getSimpleName());
+            //mTvSerial.append("Serial device: " + sPort.getClass().getSimpleName());
         }
         onDeviceStateChange();
     }
@@ -268,9 +319,10 @@ public class MainActivity extends Activity {
     private void updateReceivedData(byte[] data) {
         final String message = "Read " + data.length + " bytes: \n"
                 + HexDump.dumpHexString(data) + "\n\n";
-        mTvSerial.append(message);
+        //mTvSerial.append(message);
     }
 
+    // TODO: Find a different way to do this...
     static void show(Context context, UsbSerialPort port) {
         sPort = port;
         final Intent intent = new Intent(context, MainActivity.class);
@@ -325,8 +377,9 @@ public class MainActivity extends Activity {
         }
     }
 
+    // TODO: This function is buggy when long pressing on gauge
     public class ViewMove implements View.OnTouchListener {
-        private ViewGroup rootLayout = (ViewGroup) findViewById(R.id.root_view);
+        private View rootView = findViewById(R.id.root_view);
         private int _xDelta;
         private int _yDelta;
 
@@ -336,13 +389,11 @@ public class MainActivity extends Activity {
             final int Y = (int) event.getRawY();
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
-                    view.setBackgroundResource(R.drawable.border_background);
                     RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
                     _xDelta = X - lParams.leftMargin;
                     _yDelta = Y - lParams.topMargin;
                     break;
                 case MotionEvent.ACTION_UP:
-                    view.setBackground(null);
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
                     break;
@@ -352,8 +403,8 @@ public class MainActivity extends Activity {
                     RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
                     layoutParams.leftMargin = X - _xDelta;
                     layoutParams.topMargin = Y - _yDelta;
-                    layoutParams.rightMargin = -2500;
-                    layoutParams.bottomMargin = -2500;
+                    layoutParams.rightMargin = -250;
+                    layoutParams.bottomMargin = -250;
                     view.setLayoutParams(layoutParams);
                     break;
             }
