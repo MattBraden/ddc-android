@@ -1,6 +1,5 @@
 package com.teamabc.digitaldynamiccluster;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,11 +19,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
-import android.app.AlertDialog;
+
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.util.HexDump;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
@@ -32,36 +33,55 @@ import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 
-import org.codeandmagic.android.gauge.GaugeView;
-
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     public final static String EXTRA_MESSAGE = "com.teamabc.digitaldynamiccluster.MESSAGE";
     private static final String TAG = "MainActivity";
+
+    // Action Button Sub Button Tags
+    private static final String TAG_ADD_GAUGE = "addGauge";
+    private static final String TAG_DELETE_GAUGES = "deleteGauges";
+    private static final String TAG_SETTINGS = "settings";
+
+    // Navigation Drawer V1 variables
     private ListView mDrawerList;
     private DrawerLayout mDrawerLayout;
     private ArrayAdapter<String> mAdapter;
     private ActionBarDrawerToggle mDrawerToggle;
-    private String mActivityTitle = "Closed!";
+
+    // Gauge Stuff?
     final GaugeData gaugeData = new GaugeData(this);
     private ViewGroup rootView;
     private View editView;
     private ViewGroup focusedGauge = null;
     private static UsbSerialPort sPort = null;
 
+    // Navigation Drawer
+    private DrawerLayout drawerLayout;
+    private ListView listView;
+    private ActionBarDrawerToggle drawerListener;
+    private MyAdapter myAdapter;
+    String[] drawerOptions;
 
+    // Navigation Drawer Header
+    private DrawerLayout drawerLayoutHeader;
+    private ListView listViewHeader;
+    private ActionBarDrawerToggle drawerListenerHeader;
+    private MyAdapter myAdapterHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Hide the top action bar
         getSupportActionBar().hide();
 
+        // Not sure what this does, something Matt wrote
         View rootView = findViewById(R.id.root_view);
         rootView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -90,30 +110,24 @@ public class MainActivity extends ActionBarActivity {
                     }
                 }).setIcon(R.drawable.info).show();
 
+        // Navigation Drawer
+        listView = (ListView) findViewById(R.id.drawerList);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        myAdapter = new MyAdapter(this);
+        listView.setAdapter(myAdapter);
+        listView.setOnItemClickListener(this);
 
-        mDrawerList = (ListView) findViewById(R.id.navList);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mActivityTitle = getTitle().toString();
-
-        addDrawerItems();
-        setupDrawer();
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
-        // Floating Action Button
+        // Floating Action Button Images
         ImageView imageView = new ImageView(this); // Create an icon
         imageView.setImageResource(R.drawable.target);
-
         ImageView iconAddGauge = new ImageView(this);
         iconAddGauge.setImageResource(R.drawable.plus);
-
         ImageView iconDeleteAllGauges = new ImageView(this);
         iconDeleteAllGauges.setImageResource(R.drawable.delete);
-
         ImageView iconSettings = new ImageView(this);
         iconSettings.setImageResource(R.drawable.process);
 
+        // Create Floating Action Button
         FloatingActionButton actionButton = new FloatingActionButton.Builder(this)
                 .setContentView(imageView)
                 .setBackgroundDrawable(R.drawable.delete)
@@ -121,10 +135,12 @@ public class MainActivity extends ActionBarActivity {
 
         SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
 
+        // Assign Icons to SubAction Buttons
         SubActionButton buttonAddGauge = itemBuilder.setContentView(iconAddGauge).build();
         SubActionButton buttonDeleteAllGauges = itemBuilder.setContentView(iconDeleteAllGauges).build();
         SubActionButton buttonSettings = itemBuilder.setContentView(iconSettings).build();
 
+        // Assemble the button items
         FloatingActionMenu actionMenu = new FloatingActionMenu.Builder(this)
                 .addSubActionView(buttonAddGauge)
                 .addSubActionView(buttonDeleteAllGauges)
@@ -172,7 +188,7 @@ public class MainActivity extends ActionBarActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
+        //mDrawerToggle.syncState();
     }
 
     @Override
@@ -431,6 +447,30 @@ public class MainActivity extends ActionBarActivity {
         context.startActivity(intent);
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        selectItem(position);
+
+        if(position == 0)
+        {
+            Intent intent = new Intent(this, ConnectActivity.class);
+            startActivity(intent);
+        }
+        if(position == 1)
+        {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+        }
+        if(position == 2) {
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+        }
+    }
+
+    private void selectItem(int position) {
+        listView.setItemChecked(position,true);
+    }
+
     // TODO: Scale the gauge nicely
     public class ViewResize implements View.OnTouchListener {
         private View resizeView;
@@ -512,6 +552,56 @@ public class MainActivity extends ActionBarActivity {
             }
             view.invalidate();
             return true;
+        }
+    }
+
+    class MyAdapter extends BaseAdapter {
+
+        private Context context;
+
+        // Arrays used to hold items to be put in drawer rows
+        int[] images = {R.drawable.heartrate, R.drawable.nut4, R.drawable.questionmarkicon};
+
+        public MyAdapter(Context context) {
+            this.context = context;
+            drawerOptions = context.getResources().getStringArray(R.array.drawer);
+        }
+
+        @Override
+        public int getCount() {
+            return drawerOptions.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return drawerOptions[position];
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View row = null;
+
+            if (convertView == null) {
+                LayoutInflater inflater = (LayoutInflater) context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                row = inflater.inflate(R.layout.custom_row, parent, false);
+            } else {
+                row = convertView;
+            }
+
+            TextView titleTextView = (TextView) row.findViewById((R.id.textView1));
+            ImageView titleImageView = (ImageView) row.findViewById(R.id.imageView1);
+
+            titleTextView.setText(drawerOptions[position]);
+            titleImageView.setImageResource(images[position]);
+
+            return row;
         }
     }
 }

@@ -70,4 +70,10 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="agreement">I agree</string>
 
+    <string-array name="drawer">
+        <item >Connect</item>
+        <item >Settings</item>
+        <item >About</item>
+    </string-array>
+
 </resources>
