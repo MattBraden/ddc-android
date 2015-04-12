@@ -1,6 +1,5 @@
 package com.teamabc.digitaldynamiccluster;
 
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -9,8 +8,9 @@ import android.content.Intent;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.os.Handler;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,45 +18,50 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
-
+import android.app.AlertDialog;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.util.HexDump;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
+import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 
 import org.codeandmagic.android.gauge.GaugeView;
 
 import java.io.IOException;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
+
     public final static String EXTRA_MESSAGE = "com.teamabc.digitaldynamiccluster.MESSAGE";
     private static final String TAG = "MainActivity";
-
+    private ListView mDrawerList;
+    private DrawerLayout mDrawerLayout;
+    private ArrayAdapter<String> mAdapter;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private String mActivityTitle = "Closed!";
     final GaugeData gaugeData = new GaugeData(this);
-
     private ViewGroup rootView;
     private View editView;
     private ViewGroup focusedGauge = null;
-
     private static UsbSerialPort sPort = null;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // TODO: Tutorial on first load?!
+        getSupportActionBar().hide();
 
-        editView = findViewById(R.id.edit_view);
         View rootView = findViewById(R.id.root_view);
         rootView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -73,6 +78,101 @@ public class MainActivity extends Activity {
                 Log.d(TAG, "disable edit");
             }
         });
+
+        // Splash Screen Warning
+        new AlertDialog.Builder(this)
+                .setTitle("WARNING")
+                .setMessage("Do not operate this Digital Display while under driving conditions. " +
+                        "By clicking OK, you agree to this bullshit yada yada yada you're going to do it anyway.")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                }).setIcon(R.drawable.info).show();
+
+
+        mDrawerList = (ListView) findViewById(R.id.navList);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mActivityTitle = getTitle().toString();
+
+        addDrawerItems();
+        setupDrawer();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        // Floating Action Button
+        ImageView imageView = new ImageView(this); // Create an icon
+        imageView.setImageResource(R.drawable.target);
+
+        ImageView iconAddGauge = new ImageView(this);
+        iconAddGauge.setImageResource(R.drawable.plus);
+
+        ImageView iconDeleteAllGauges = new ImageView(this);
+        iconDeleteAllGauges.setImageResource(R.drawable.delete);
+
+        ImageView iconSettings = new ImageView(this);
+        iconSettings.setImageResource(R.drawable.process);
+
+        FloatingActionButton actionButton = new FloatingActionButton.Builder(this)
+                .setContentView(imageView)
+                .setBackgroundDrawable(R.drawable.delete)
+                .build();
+
+        SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
+
+        SubActionButton buttonAddGauge = itemBuilder.setContentView(iconAddGauge).build();
+        SubActionButton buttonDeleteAllGauges = itemBuilder.setContentView(iconDeleteAllGauges).build();
+        SubActionButton buttonSettings = itemBuilder.setContentView(iconSettings).build();
+
+        FloatingActionMenu actionMenu = new FloatingActionMenu.Builder(this)
+                .addSubActionView(buttonAddGauge)
+                .addSubActionView(buttonDeleteAllGauges)
+                .addSubActionView(buttonSettings)
+                .attachTo(actionButton)
+                .build();
+    }
+
+    private void addDrawerItems() {
+        String[] osArray = {"Digital Dynamic Cluster", "Settings", "About"};
+        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
+        mDrawerList.setAdapter(mAdapter);
+
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(MainActivity.this, "Time for an upgrade!", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setupDrawer() {
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                //getActionBar().setTitle("Navigation!");
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                //getActionBar().setTitle(mActivityTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+
+        mDrawerToggle.setDrawerIndicatorEnabled(true);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
     }
 
     @Override
@@ -93,12 +193,10 @@ public class MainActivity extends Activity {
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
-        }
-        else if (id == R.id.action_about) {
+        } else if (id == R.id.action_about) {
             Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
-        }
-        else if (id == R.id.action_connect) {
+        } else if (id == R.id.action_connect) {
             Intent intent = new Intent(this, ConnectActivity.class);
             startActivity(intent);
         }
@@ -106,6 +204,7 @@ public class MainActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
+    /*
     public void addGauge(View view) {
         LayoutInflater li = LayoutInflater.from(this);
         View addGaugeView = li.inflate(R.layout.add_gauge, null);
@@ -150,14 +249,13 @@ public class MainActivity extends Activity {
                 newGaugeView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
-                        if(hasFocus){
+                        if (hasFocus) {
                             enableEdit();
                             focusedGauge = (ViewGroup) v;
                             v.setBackgroundResource(R.drawable.border_background);
                             v.setOnTouchListener(new ViewMove());
                             ((ViewGroup) v).getChildAt(1).setVisibility(View.VISIBLE);
-                        }
-                        else {
+                        } else {
                             focusedGauge = null;
                             v.setBackground(null);
                             v.setOnTouchListener(null);
@@ -192,11 +290,14 @@ public class MainActivity extends Activity {
 
         dialog.show();
     }
+    */
 
+    /*
     public void removeGauge(View v) {
         // Remove focused gauge, dont care about view that was clicked
         rootView.removeView(focusedGauge);
     }
+    */
 
     // TODO: Implement saveView functionality
     public void saveView(View view) {
@@ -236,13 +337,13 @@ public class MainActivity extends Activity {
 
                 @Override
                 public void onNewData(final byte[] data) {
-                   runOnUiThread(new Runnable() {
-                       @Override
-                       public void run() {
-                           gaugeData.updateData(data);
-                           //HexDump.dumpHexString(data)
-                       }
-                   });
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            gaugeData.updateData(data);
+                            //HexDump.dumpHexString(data)
+                        }
+                    });
                 }
             };
 
@@ -333,7 +434,8 @@ public class MainActivity extends Activity {
     // TODO: Scale the gauge nicely
     public class ViewResize implements View.OnTouchListener {
         private View resizeView;
-        public ViewResize (View resizeView) {
+
+        public ViewResize(View resizeView) {
             this.resizeView = resizeView;
         }
 
