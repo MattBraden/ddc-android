@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:text="@string/title_activity_connect_usb"
+        android:text="@string/title_activity_available_connections"
         android:textSize="24sp"
         android:textStyle="bold" />
 
@@ -47,5 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/separator" />
+
+
 
 </RelativeLayout>

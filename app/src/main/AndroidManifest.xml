@@ -33,9 +33,9 @@
                 android:value="com.teamabc.digitaldynamiccluster.MainActivity" />
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name="com.teamabc.digitaldynamiccluster.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName="com.teamabc.digitaldynamiccluster.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.teamabc.digitaldynamiccluster.MainActivity" />

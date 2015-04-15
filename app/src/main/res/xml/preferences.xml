@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="clusterConfigName"
+        android:summary="Please provide your custom configuration name."
+        android:title="Cluster Configuration Name"></EditTextPreference>
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="landscapeLock"
+        android:summary="This option if selected will lock the tablet in landscape mode."
+        android:title="Landscape Lock" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="caffeine"
+        android:summary="This option if selected will keep the Android awake indefinitely."
+        android:title="Caffeine" />
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/clusterBackground"
+        android:entryValues="@array/listValues"
+        android:key="clusterBackground"
+        android:summary="Select the cluster background that will be displayed."
+        android:title="Cluster Background" />
+</PreferenceScreen>

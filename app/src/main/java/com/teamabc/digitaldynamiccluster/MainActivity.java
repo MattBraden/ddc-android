@@ -4,9 +4,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -41,6 +43,12 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     public final static String EXTRA_MESSAGE = "com.teamabc.digitaldynamiccluster.MESSAGE";
     private static final String TAG = "MainActivity";
+
+    // Shared Preferences Stuff
+    public static final String USERPREFS = "userPrefs";
+    private SharedPreferences SP;
+    private SharedPreferences.Editor editor;
+    private Context context;
 
     // Action Button Sub Button Tags
     private static final String TAG_ADD_GAUGE = "addGauge";
@@ -78,8 +86,40 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Shared Preferences
+        SP = getSharedPreferences("com.teamabc.digitaldynamiccluster", MODE_PRIVATE);
+
+        String clusterConfigName = SP.getString("username", "NA");
+        boolean landscapeLock = SP.getBoolean("landscapeLock", false);
+        String clusterBackground = SP.getString("clusterBackground", "Black");
+
+        // This is the first run
+        SP.edit().putBoolean("firstrun", true).commit();
+
         // Hide the top action bar
         getSupportActionBar().hide();
+
+        // Display the warning only the first time MainActivity runs
+        if (SP.getBoolean("firstrun", true)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("WARNING")
+                    .setMessage("Do not operate this Digital Display while under driving conditions. " +
+                            "By clicking OK, you agree to this bullshit yada yada yada you're going to do it anyway.")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    }).setIcon(R.drawable.info).show();
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Preferenecs")
+                    .setMessage("Cluster Configuration: " + clusterConfigName + "\n" + "Cluster Background: " + clusterBackground)
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    }).setIcon(R.drawable.info).show();
+        }
 
         // Not sure what this does, something Matt wrote
         View rootView = findViewById(R.id.root_view);
@@ -98,17 +138,6 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 Log.d(TAG, "disable edit");
             }
         });
-
-        // Splash Screen Warning
-        new AlertDialog.Builder(this)
-                .setTitle("WARNING")
-                .setMessage("Do not operate this Digital Display while under driving conditions. " +
-                        "By clicking OK, you agree to this bullshit yada yada yada you're going to do it anyway.")
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                }).setIcon(R.drawable.info).show();
 
         // Navigation Drawer
         listView = (ListView) findViewById(R.id.drawerList);
@@ -147,6 +176,8 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 .addSubActionView(buttonSettings)
                 .attachTo(actionButton)
                 .build();
+
+        SP.edit().putBoolean("firstrun", false).commit();
     }
 
     private void addDrawerItems() {
@@ -220,101 +251,6 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         return super.onOptionsItemSelected(item);
     }
 
-    /*
-    public void addGauge(View view) {
-        LayoutInflater li = LayoutInflater.from(this);
-        View addGaugeView = li.inflate(R.layout.add_gauge, null);
-
-        // Instantiate an AlertDialog.Builder with its constructor
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.add_gauge);
-
-        // Set custom view
-        builder.setView(addGaugeView);
-        // Add the buttons
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User clicked OK button
-                // Create new gauge view
-                Gauge newGauge = new Gauge();
-                ViewGroup newGaugeView = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(R.layout.gauge_layout, null);
-
-                GaugeView gauge = (GaugeView) newGaugeView.getChildAt(0);
-
-                // Add new gauge to root layer
-                rootView = (ViewGroup) findViewById(R.id.root_view);
-                rootView.addView(newGaugeView);
-                newGaugeView.bringToFront();
-
-                // Set up listeners
-                // TODO: Not sure to comment this out or use it, causes bug but has better functionality...
-                newGaugeView.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-
-                        // After a long click the gauge is focused
-                        //enableEdit();
-                        view.requestFocus();
-
-                        return true;
-                    }
-                });
-
-                newGaugeView.setFocusable(true);
-                newGaugeView.setFocusableInTouchMode(true);
-                newGaugeView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                    @Override
-                    public void onFocusChange(View v, boolean hasFocus) {
-                        if (hasFocus) {
-                            enableEdit();
-                            focusedGauge = (ViewGroup) v;
-                            v.setBackgroundResource(R.drawable.border_background);
-                            v.setOnTouchListener(new ViewMove());
-                            ((ViewGroup) v).getChildAt(1).setVisibility(View.VISIBLE);
-                        } else {
-                            focusedGauge = null;
-                            v.setBackground(null);
-                            v.setOnTouchListener(null);
-                            ((ViewGroup) v).getChildAt(1).setVisibility(View.INVISIBLE);
-                        }
-                    }
-                });
-
-                // Set listener for resize
-                newGaugeView.getChildAt(1).setOnTouchListener(new ViewResize(newGaugeView));
-
-                // Set initial size and position
-                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) newGaugeView.getLayoutParams();
-                layoutParams.leftMargin = 0;
-                layoutParams.topMargin = 0;
-                layoutParams.width = 300;
-                layoutParams.height = 300;
-                newGaugeView.setLayoutParams(layoutParams);
-
-                newGauge.setView(newGaugeView);
-                gaugeData.addObserver(newGauge);
-            }
-        });
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User cancelled the dialog
-            }
-        });
-
-        // 3. Get the AlertDialog from create()
-        AlertDialog dialog = builder.create();
-
-        dialog.show();
-    }
-    */
-
-    /*
-    public void removeGauge(View v) {
-        // Remove focused gauge, dont care about view that was clicked
-        rootView.removeView(focusedGauge);
-    }
-    */
-
     // TODO: Implement saveView functionality
     public void saveView(View view) {
 
@@ -375,13 +311,17 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             }
             sPort = null;
         }
-        finish();
+        //finish();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
         Log.d(TAG, "Resumed, port=" + sPort);
+
+        super.onResume();
+
         if (sPort == null) {
             //mTvSerial.append("No serial device.");
         } else {
@@ -451,24 +391,22 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         selectItem(position);
 
-        if(position == 0)
-        {
+        if (position == 0) {
             Intent intent = new Intent(this, ConnectActivity.class);
             startActivity(intent);
         }
-        if(position == 1)
-        {
+        if (position == 2) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         }
-        if(position == 2) {
+        if (position == 3) {
             Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
         }
     }
 
     private void selectItem(int position) {
-        listView.setItemChecked(position,true);
+        listView.setItemChecked(position, true);
     }
 
     // TODO: Scale the gauge nicely
@@ -560,7 +498,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         private Context context;
 
         // Arrays used to hold items to be put in drawer rows
-        int[] images = {R.drawable.heartrate, R.drawable.nut4, R.drawable.questionmarkicon};
+        int[] images = {R.drawable.heartrate, R.drawable.layers, R.drawable.nut4, R.drawable.questionmarkicon};
 
         public MyAdapter(Context context) {
             this.context = context;

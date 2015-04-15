@@ -23,6 +23,6 @@
         android:divider="#b5b5b5"
         android:textColor="#000000"
         android:dividerHeight="1dp"
-        android:background="@drawable/carbonfiber"/>
+        android:background="#FFFFFF"/>
 
 </android.support.v4.widget.DrawerLayout>

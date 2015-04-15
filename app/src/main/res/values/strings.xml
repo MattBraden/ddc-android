@@ -37,7 +37,7 @@
     <string name="title_activity_send_message">Send</string>
     <string name="title_activity_about">About</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="title_activity_connect_usb">USB Connect</string>
+    <string name="title_activity_available_connections">Available Connections</string>
 
 
     <!-- Preferences/Settings -->
@@ -72,6 +72,7 @@
 
     <string-array name="drawer">
         <item >Connect</item>
+        <item >Layouts</item>
         <item >Settings</item>
         <item >About</item>
     </string-array>
