@@ -1,26 +1,15 @@
 package com.teamabc.digitaldynamiccluster;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
-import android.support.v4.app.NavUtils;
-import android.support.v7.app.ActionBarActivity;
+import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.Toast;
-
-import java.util.List;
+import android.widget.RelativeLayout;
 
 public class SettingsActivity extends PreferenceActivity {
-
-    ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

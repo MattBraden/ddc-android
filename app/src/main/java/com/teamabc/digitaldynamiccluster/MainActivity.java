@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -46,7 +47,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     // Shared Preferences Stuff
     public static final String USERPREFS = "userPrefs";
-    private SharedPreferences SP;
+    private static SharedPreferences SP;
     private SharedPreferences.Editor editor;
     private Context context;
 
@@ -86,8 +87,14 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Shared Preferences
+        // Get Shared Preferences
         SP = getSharedPreferences("com.teamabc.digitaldynamiccluster", MODE_PRIVATE);
+
+        // Get shared preferences
+        SP = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        // Register shared preferences changed listener
+        SP.registerOnSharedPreferenceChangeListener(spChanged);
 
         String clusterConfigName = SP.getString("username", "NA");
         boolean landscapeLock = SP.getBoolean("landscapeLock", false);
@@ -141,7 +148,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
         // Navigation Drawer
         listView = (ListView) findViewById(R.id.drawerList);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout = (DrawerLayout) findViewById(R.id.mainActivityLayout);
         myAdapter = new MyAdapter(this);
         listView.setAdapter(myAdapter);
         listView.setOnItemClickListener(this);
@@ -155,6 +162,10 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         iconDeleteAllGauges.setImageResource(R.drawable.delete);
         ImageView iconSettings = new ImageView(this);
         iconSettings.setImageResource(R.drawable.process);
+        int buttonSize = 85;
+
+        // Button Size Parameters
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(buttonSize, buttonSize);
 
         // Create Floating Action Button
         FloatingActionButton actionButton = new FloatingActionButton.Builder(this)
@@ -162,7 +173,9 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 .setBackgroundDrawable(R.drawable.delete)
                 .build();
 
+        // Set subaction button size to buttonSize
         SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
+        itemBuilder.setLayoutParams(params);
 
         // Assign Icons to SubAction Buttons
         SubActionButton buttonAddGauge = itemBuilder.setContentView(iconAddGauge).build();
@@ -395,6 +408,10 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             Intent intent = new Intent(this, ConnectActivity.class);
             startActivity(intent);
         }
+        if (position == 1) {
+            Intent intent = new Intent(this, LayoutsActivity.class);
+            startActivity(intent);
+        }
         if (position == 2) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
@@ -542,4 +559,16 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             return row;
         }
     }
+
+    SharedPreferences.OnSharedPreferenceChangeListener spChanged = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            if (key.contentEquals("clusterBackground")) {
+                Toast.makeText(getApplicationContext(), "Background has been changed! Key: " + key,
+                        Toast.LENGTH_LONG).show();
+                //RelativeLayout lLayout = (RelativeLayout) findViewById(R.id.root_view);
+                //lLayout.setBackgroundColor(Integer.parseInt("#FFFFFF"));
+            }
+        }
+    };
 }

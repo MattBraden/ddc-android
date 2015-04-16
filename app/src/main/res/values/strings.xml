@@ -76,5 +76,6 @@
         <item >Settings</item>
         <item >About</item>
     </string-array>
+    <string name="title_activity_layouts">LayoutsActivity</string>
 
 </resources>

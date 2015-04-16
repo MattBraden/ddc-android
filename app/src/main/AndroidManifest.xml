@@ -33,9 +33,9 @@
                 android:value="com.teamabc.digitaldynamiccluster.MainActivity" />
         </activity>
         <activity
-            android:name="com.teamabc.digitaldynamiccluster.SettingsActivity"
+            android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="com.teamabc.digitaldynamiccluster.MainActivity" >
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.teamabc.digitaldynamiccluster.MainActivity" />
@@ -47,6 +47,10 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.teamabc.digitaldynamiccluster.MainActivity" />
+        </activity>
+        <activity
+            android:name=".LayoutsActivity"
+            android:label="@string/title_activity_layouts" >
         </activity>
     </application>
 
