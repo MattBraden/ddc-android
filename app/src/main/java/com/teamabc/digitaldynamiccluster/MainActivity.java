@@ -193,19 +193,6 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         SP.edit().putBoolean("firstrun", false).commit();
     }
 
-    private void addDrawerItems() {
-        String[] osArray = {"Digital Dynamic Cluster", "Settings", "About"};
-        mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
-        mDrawerList.setAdapter(mAdapter);
-
-        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "Time for an upgrade!", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
     private void setupDrawer() {
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
 
@@ -566,8 +553,6 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             if (key.contentEquals("clusterBackground")) {
                 Toast.makeText(getApplicationContext(), "Background has been changed! Key: " + key,
                         Toast.LENGTH_LONG).show();
-                //RelativeLayout lLayout = (RelativeLayout) findViewById(R.id.root_view);
-                //lLayout.setBackgroundColor(Integer.parseInt("#FFFFFF"));
             }
         }
     };
