@@ -58,7 +58,8 @@
     <string name="pref_default_temperature_unit">Fahrenheit</string>
 
     <!-- About -->
-    <string name="about_description">Digital Dynamic Cluster was created for Senior Thesis Design</string>
+    <string name="about_description">The Digital Dynamic Cluster is a solution for car enthusiasts seeking a modern solution to engine data display to replace mechanical or other options that do not suit the needs of their driving style. The Digital Dynamic Cluster offers a customizable interface that allows users to present data in their own unique way using a touch screen display device (Android Tablet). Data is taken from the vehicle via CAN bus to the transceiver board where it is processed, then transmitted to the display via USB. Additionally, users may connect an additional Android device via Bluetooth wireless communication. This system is comprised of a transceiver board that houses a CAN bus, USB, and Bluetooth interface as well as a touch screen display. Team ABC designed the Android application and the transceiver board, which hosts a number of surface mount components to maintain a small form factor. As a result, the Digital Dynamic Cluster is able to provide accurate information to the user in the form of digital gauges and readouts in such a way to conform to each individual\'s unique requirements depending on their driving experience. Team ABC is proud to offer such a aesthetically pleasing and reliable system for easy integration into existing automotive applications.
+</string>
     <string name="about_contributors_title">Contributors</string>
     <string name="about_contributors">Jacob Anderson\nMatt Braden\nKenton Carson</string>
     <string name="title_activity_device_list">DeviceListActivity</string>
@@ -71,11 +72,12 @@
     <string name="agreement">I agree</string>
 
     <string-array name="drawer">
-        <item >Connect</item>
-        <item >Layouts</item>
-        <item >Settings</item>
-        <item >About</item>
+        <item>Connect</item>
+        <item>Layouts</item>
+        <item>Settings</item>
+        <item>About</item>
     </string-array>
     <string name="title_activity_layouts">LayoutsActivity</string>
+    <string name="title_activity_my_navigation_drawer">MyNavigationDrawer</string>
 
 </resources>

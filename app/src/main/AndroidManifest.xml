@@ -52,6 +52,10 @@
             android:name=".LayoutsActivity"
             android:label="@string/title_activity_layouts" >
         </activity>
+        <activity
+            android:name=".MyNavigationDrawer"
+            android:label="@string/title_activity_my_navigation_drawer" >
+        </activity>
     </application>
 
 </manifest>
