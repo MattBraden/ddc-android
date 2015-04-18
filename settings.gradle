@@ -1,2 +1,1 @@
-include ':app', ':usbSerialForAndroid'
-include ':GaugeView'
+include ':app', ':usbSerialForAndroid', ':customView'

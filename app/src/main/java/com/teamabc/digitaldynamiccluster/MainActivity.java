@@ -1,6 +1,10 @@
 package com.teamabc.digitaldynamiccluster;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,59 +18,39 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
 import com.hoho.android.usbserial.util.HexDump;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionButton;
-import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
-import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
+import com.teamabc.customviews.GaugeView;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+public class MainActivity extends Activity {
+    private static final String TAG = MainActivity.class.getSimpleName();
 
-    public final static String EXTRA_MESSAGE = "com.teamabc.digitaldynamiccluster.MESSAGE";
-    private static final String TAG = "MainActivity";
-
-    // Shared Preferences Stuff
-    public static final String USERPREFS = "userPrefs";
+    // Shared Preferences
     private static SharedPreferences SP;
-    private SharedPreferences.Editor editor;
-    private Context context;
 
-    // Action Button Sub Button Tags
-    private static final String TAG_ADD_GAUGE = "addGauge";
-    private static final String TAG_DELETE_GAUGES = "deleteGauges";
-    private static final String TAG_SETTINGS = "settings";
-
-    // Navigation Drawer V1 variables
-    private ListView mDrawerList;
-    private DrawerLayout mDrawerLayout;
-    private ArrayAdapter<String> mAdapter;
-    private ActionBarDrawerToggle mDrawerToggle;
-
-    // Gauge Stuff?
+    // Gauge Stuff
     final GaugeData gaugeData = new GaugeData(this);
-    private ViewGroup rootView;
-    private View editView;
-    private ViewGroup focusedGauge = null;
+    private ViewGroup mContentView;
+    private View mEditView;
+    private ViewGroup mFocusedGauge = null;
     private static UsbSerialPort sPort = null;
 
     // Navigation Drawer
@@ -76,17 +60,25 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
     private MyAdapter myAdapter;
     String[] drawerOptions;
 
-    // Navigation Drawer Header
-    private DrawerLayout drawerLayoutHeader;
-    private ListView listViewHeader;
-    private ActionBarDrawerToggle drawerListenerHeader;
-    private MyAdapter myAdapterHeader;
+    // Navigation Drawer
+    private String[] mDrawerOptions;
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private String mTitle;
+
+    // Floating Action Button
+    FloatingActionsMenu mFloatingActionsMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
+        mEditView = findViewById(R.id.edit_actions_menu);
+        mFloatingActionsMenu = (FloatingActionsMenu) findViewById(R.id.edit_actions_menu);
+
+        // TODO: Move Preferences stuff somewhere else
         // Get Shared Preferences
         SP = getSharedPreferences("com.teamabc.digitaldynamiccluster", MODE_PRIVATE);
 
@@ -104,14 +96,14 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         SP.edit().putBoolean("firstrun", true).commit();
 
         // Hide the top action bar
-        getSupportActionBar().hide();
+        //getSupportActionBar().hide();
 
         // Display the warning only the first time MainActivity runs
         if (SP.getBoolean("firstrun", true)) {
             new AlertDialog.Builder(this)
                     .setTitle("WARNING")
-                    .setMessage("Do not operate this Digital Display while under driving conditions. " +
-                            "By clicking OK, you agree to this bullshit yada yada yada you're going to do it anyway.")
+                    .setMessage("The Digital Dynamic Cluster application is not permitted to be operated while a vehicle is in operation.. " +
+                            "By clicking Ok, you agree to not operate this Digital Display while operating a vehicle.")
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
@@ -128,9 +120,9 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                     }).setIcon(R.drawable.info).show();
         }
 
-        // Not sure what this does, something Matt wrote
-        View rootView = findViewById(R.id.root_view);
-        rootView.setOnLongClickListener(new View.OnLongClickListener() {
+        // Long click on main view enables edit mode
+        ViewGroup mContentView = (ViewGroup) findViewById(R.id.content_frame);
+        mContentView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 enableEdit();
@@ -138,7 +130,8 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 return true;
             }
         });
-        rootView.setOnClickListener(new View.OnClickListener() {
+        // Click on the main view disables edit mode
+        mContentView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 disableEdit();
@@ -146,109 +139,189 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
             }
         });
 
+
+        mDrawerOptions = getResources().getStringArray(R.array.drawer_options);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.drawer_list);
+
+        // Set the adapter for the list view
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, mDrawerOptions));
+        // Set the list's click listener
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+
         // Navigation Drawer
+        // TODO: Reimplement this code.  Sorry Jacob I was trying some stuff out.
+        /*
         listView = (ListView) findViewById(R.id.drawerList);
         drawerLayout = (DrawerLayout) findViewById(R.id.mainActivityLayout);
         myAdapter = new MyAdapter(this);
         listView.setAdapter(myAdapter);
         listView.setOnItemClickListener(this);
-
-        // Floating Action Button Images
-        ImageView imageView = new ImageView(this); // Create an icon
-        imageView.setImageResource(R.drawable.target);
-        ImageView iconAddGauge = new ImageView(this);
-        iconAddGauge.setImageResource(R.drawable.plus);
-        ImageView iconDeleteAllGauges = new ImageView(this);
-        iconDeleteAllGauges.setImageResource(R.drawable.delete);
-        ImageView iconSettings = new ImageView(this);
-        iconSettings.setImageResource(R.drawable.process);
-        int buttonSize = 85;
-
-        // Button Size Parameters
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(buttonSize, buttonSize);
-
-        // Create Floating Action Button
-        FloatingActionButton actionButton = new FloatingActionButton.Builder(this)
-                .setContentView(imageView)
-                .setBackgroundDrawable(R.drawable.delete)
-                .build();
-
-        // Set subaction button size to buttonSize
-        SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
-        itemBuilder.setLayoutParams(params);
-
-        // Assign Icons to SubAction Buttons
-        SubActionButton buttonAddGauge = itemBuilder.setContentView(iconAddGauge).build();
-        SubActionButton buttonDeleteAllGauges = itemBuilder.setContentView(iconDeleteAllGauges).build();
-        SubActionButton buttonSettings = itemBuilder.setContentView(iconSettings).build();
-
-        // Assemble the button items
-        FloatingActionMenu actionMenu = new FloatingActionMenu.Builder(this)
-                .addSubActionView(buttonAddGauge)
-                .addSubActionView(buttonDeleteAllGauges)
-                .addSubActionView(buttonSettings)
-                .attachTo(actionButton)
-                .build();
+        */
 
         SP.edit().putBoolean("firstrun", false).commit();
     }
 
-    private void setupDrawer() {
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
-
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                //getActionBar().setTitle("Navigation!");
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                //getActionBar().setTitle(mActivityTitle);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-
-        mDrawerToggle.setDrawerIndicatorEnabled(true);
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView parent, View view, int position, long id) {
+            selectItem(position);
+        }
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        //mDrawerToggle.syncState();
-    }
+    /** Swaps fragments in the main content view */
+    private void selectItem(int position) {
+        // Depending on the selection open up a fragment or activity
+        Intent intent;
+        switch(position) {
+            case 0: // Connect
+                // TODO: Implement connect code, this should not call an activity but rather a dialog box to select how to connect
+                break;
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
+            case 1: // Layouts
+                intent = new Intent(this, LayoutsActivity.class);
+                startActivity(intent);
+                break;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+            case 2: // About
+                intent = new Intent(this, AboutActivity.class);
+                startActivity(intent);
+                break;
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.action_about) {
-            Intent intent = new Intent(this, AboutActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.action_connect) {
-            Intent intent = new Intent(this, ConnectActivity.class);
-            startActivity(intent);
+            case 3: // Settings
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                break;
         }
 
-        return super.onOptionsItemSelected(item);
+        mDrawerList.setItemChecked(position, true);
+        mDrawerLayout.closeDrawers();
+    }
+
+    // Full Screen
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE);
+        }
+    }
+
+
+    public void addGauge(View view) {
+        // Collapse floating action menu
+        mFloatingActionsMenu.collapse();
+        LayoutInflater li = LayoutInflater.from(this);
+        View addGaugeView = li.inflate(R.layout.add_gauge, null);
+
+        // Instantiate an AlertDialog.Builder with its constructor
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.add_gauge);
+
+        // Set custom view
+        builder.setView(addGaugeView);
+        // Add the buttons
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+                // Create new gauge view
+                Gauge newGauge = new Gauge();
+                ViewGroup newGaugeView = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(R.layout.gauge_layout, null);
+
+                GaugeView gauge = (GaugeView) newGaugeView.getChildAt(0);
+
+                // Add new gauge to root layer
+                mContentView = (ViewGroup) findViewById(R.id.content_frame);
+                mContentView.addView(newGaugeView);
+                newGaugeView.bringToFront();
+
+                // Set up listeners
+                // TODO: Not sure to comment this out or use it, causes bug but has better functionality...
+                newGaugeView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+
+                        // After a long click the gauge is focused
+                        //enableEdit();
+                        view.requestFocus();
+
+                        return true;
+                    }
+                });
+
+                newGaugeView.setFocusable(true);
+                newGaugeView.setFocusableInTouchMode(true);
+                newGaugeView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View v, boolean hasFocus) {
+                        if(hasFocus){
+                            enableEdit();
+                            mFocusedGauge = (ViewGroup) v;
+                            v.setBackgroundResource(R.drawable.border_background);
+                            v.setOnTouchListener(new ViewMove());
+                            ((ViewGroup) v).getChildAt(1).setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            mFocusedGauge = null;
+                            v.setBackground(null);
+                            v.setOnTouchListener(null);
+                            ((ViewGroup) v).getChildAt(1).setVisibility(View.INVISIBLE);
+                        }
+                    }
+                });
+
+                // Set listener for resize
+                newGaugeView.getChildAt(1).setOnTouchListener(new ViewResize(newGaugeView));
+
+                // Set initial size and position
+                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) newGaugeView.getLayoutParams();
+                layoutParams.leftMargin = 0;
+                layoutParams.topMargin = 0;
+                layoutParams.width = 300;
+                layoutParams.height = 300;
+                newGaugeView.setLayoutParams(layoutParams);
+
+                newGauge.setView(newGaugeView);
+                gaugeData.addObserver(newGauge);
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+
+        // 3. Get the AlertDialog from create()
+        AlertDialog dialog = builder.create();
+
+        dialog.show();
+    }
+
+    // Remove focused gauge
+    public void removeGauge(View v) {
+        // Collapse floating action menu
+        mFloatingActionsMenu.collapse();
+        if (mFocusedGauge == null) {
+            Toast.makeText(this, "Please select a gauge first", Toast.LENGTH_SHORT).show();
+        }
+        mContentView.removeView(mFocusedGauge);
+    }
+
+    // TODO: Implement editGauge functionality
+    public void editGauge(View view) {
+        // Collapse floating action menu
+        mFloatingActionsMenu.collapse();
+        if (mFocusedGauge == null) {
+            Toast.makeText(this, "Please select a gauge first", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // TODO: Implement saveView functionality
@@ -256,22 +329,18 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     }
 
-    // TODO: Implement editGauge functionality
-    public void editGauge(View view) {
-
-    }
-
     private void enableEdit() {
-
-        editView.setVisibility(View.VISIBLE);
+        mEditView.setVisibility(View.VISIBLE);
     }
 
     private void disableEdit() {
+        // Collapse floating action menu
+        mFloatingActionsMenu.collapse();
         // TODO: Fix bug when you initially click before adding any gauges
-        rootView.setFocusable(true);
-        rootView.setFocusableInTouchMode(true);
-        rootView.requestFocus();
-        editView.setVisibility(View.INVISIBLE);
+        mContentView.setFocusable(true);
+        mContentView.setFocusableInTouchMode(true);
+        mContentView.requestFocus();
+        mEditView.setVisibility(View.INVISIBLE);
     }
 
     // ------------ Serial Data functions ------------------
@@ -379,40 +448,6 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         //mTvSerial.append(message);
     }
 
-    // TODO: Find a different way to do this...
-    static void show(Context context, UsbSerialPort port) {
-        sPort = port;
-        final Intent intent = new Intent(context, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
-        context.startActivity(intent);
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        selectItem(position);
-
-        if (position == 0) {
-            Intent intent = new Intent(this, ConnectActivity.class);
-            startActivity(intent);
-        }
-        if (position == 1) {
-            Intent intent = new Intent(this, LayoutsActivity.class);
-            startActivity(intent);
-        }
-        if (position == 2) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-        }
-        if (position == 3) {
-            Intent intent = new Intent(this, AboutActivity.class);
-            startActivity(intent);
-        }
-    }
-
-    private void selectItem(int position) {
-        listView.setItemChecked(position, true);
-    }
-
     // TODO: Scale the gauge nicely
     public class ViewResize implements View.OnTouchListener {
         private View resizeView;
@@ -427,7 +462,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         public boolean onTouch(View v, MotionEvent e) {
             View dragHandle = v;
             if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                focusedGauge = (ViewGroup) v.getParent();
+                mFocusedGauge = (ViewGroup) v.getParent();
 
                 // calculate center of image
                 centerX = (resizeView.getLeft() + resizeView.getRight()) / 2f;
@@ -452,8 +487,6 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
                 resizeView.setScaleY(newScale);
 
             } else if (e.getAction() == MotionEvent.ACTION_UP) {
-                focusedGauge = null;
-
 
                 Log.d(TAG, "Resize Done!");
             }
@@ -463,7 +496,6 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     // TODO: This function is buggy when long pressing on gauge
     public class ViewMove implements View.OnTouchListener {
-        private View rootView = findViewById(R.id.root_view);
         private int _xDelta;
         private int _yDelta;
 
@@ -506,7 +538,7 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
         public MyAdapter(Context context) {
             this.context = context;
-            drawerOptions = context.getResources().getStringArray(R.array.drawer);
+            //drawerOptions = context.getResources().getStringArray(R.array.drawer);
         }
 
         @Override

@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import org.codeandmagic.android.gauge.GaugeView;
+import com.teamabc.customviews.GaugeView;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -26,7 +26,7 @@ public class Gauge implements Observer {
     @Override
     public void update(Observable observable, Object data) {
         // update gauge
-        ((GaugeView) view.getChildAt(0)).setTargetValue(RAND.nextInt(101));
+        ((GaugeView) view.getChildAt(0)).setValue(RAND.nextInt(101));
     }
 
     public void setType(String type) {
@@ -36,6 +36,7 @@ public class Gauge implements Observer {
     public String getType() {
         return this.type;
     }
+
     public View getView() {
         return view;
     }

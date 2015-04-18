@@ -5,12 +5,11 @@
     android:layout_width="200dp"
     android:layout_height="200dp"
     android:background="@null">
-    <org.codeandmagic.android.gauge.GaugeView
+
+    <com.teamabc.customviews.GaugeView
         android:id="@+id/gauge_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        gauge:showOuterShadow="true"
-        gauge:showOuterRim="false" />
+        android:layout_height="match_parent" />
     <ImageView
         android:id="@+id/gauge_resize"
         android:src="@drawable/ic_action_resize"

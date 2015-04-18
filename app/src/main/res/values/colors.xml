@@ -6,4 +6,11 @@
     <color name="colorPrimaryDark">#616161</color>
     <color name="colorAccent">#18FFFF</color>
     <color name="colorHighlight">#18FFFF</color>
+
+    <color name="green">#4CAF50</color>
+    <color name="green_pressed">#B24CAF50</color>
+    <color name="black_semi_transparent">#B2000000</color>
+    <color name="background">#e5e5e5</color>
+    <color name="half_black">#808080</color>
+
 </resources>

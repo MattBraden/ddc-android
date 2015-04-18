@@ -32,7 +32,7 @@ public class GaugeData extends Observable {
     @Override
     public void notifyObservers() {
 
-        for(Observer gauge: gauges) {
+        for (Observer gauge : gauges) {
             //gauge.update(this, data);
         }
     }

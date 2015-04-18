@@ -1,0 +1,26 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:gaugeView="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+
+    <com.teamabc.customviews.GaugeView
+        android:id="@+id/gauge"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        gaugeView:labelText="RPM"
+        gaugeView:gaugeFaceColor="@color/accent_material_light"
+        gaugeView:scaleMaxNumber="10000"
+        gaugeView:scaleColor="@color/material_blue_grey_950"
+        />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/gauge"
+        android:onClick="test"/>
+</RelativeLayout>

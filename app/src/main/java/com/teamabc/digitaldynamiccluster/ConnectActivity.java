@@ -209,7 +209,7 @@ public class ConnectActivity extends Activity {
     }
 
     private void showMainActivity(UsbSerialPort port) {
-        MainActivity.show(this, port);
+        //MainActivity.show(this, port);
     }
 
 }

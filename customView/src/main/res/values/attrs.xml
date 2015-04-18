@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GaugeView">
+        <attr name="showLabel" format="boolean" />
+        <attr name="labelText" format="string" />
+        <attr name="labelTextColor" format="color" />
+        <attr name="showValue" format="boolean" />
+        <!-- Maybe add font? -->
+        <attr name="valueTextColor" format="color" />
+        <attr name="scaleColor" format="color" />
+        <attr name="scaleMinNumber" format="integer" />
+        <attr name="scaleMaxNumber" format="integer" />
+        <attr name="scaleStartDegrees" format="integer" />
+        <attr name="scaleEndDegrees" format="integer" />
+        <attr name="scaleTotalNicks" format="integer" />
+        <attr name="gaugeFaceStyle" format="reference" />
+        <attr name="gaugeFaceColor" format="color" />
+        <attr name="needleColor" format="color" />
+        <attr name="needleCenterColor" format="color" />
+    </declare-styleable>
+</resources>
