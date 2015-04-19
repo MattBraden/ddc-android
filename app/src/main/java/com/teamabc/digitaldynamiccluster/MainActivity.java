@@ -11,7 +11,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
@@ -31,12 +33,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
+import com.hoho.android.usbserial.driver.UsbSerialDriver;
 import com.hoho.android.usbserial.driver.UsbSerialPort;
+import com.hoho.android.usbserial.driver.UsbSerialProber;
 import com.hoho.android.usbserial.util.HexDump;
 import com.hoho.android.usbserial.util.SerialInputOutputManager;
 import com.teamabc.customviews.GaugeView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,7 +57,9 @@ public class MainActivity extends Activity {
     private ViewGroup mContentView;
     private View mEditView;
     private ViewGroup mFocusedGauge = null;
-    private static UsbSerialPort sPort = null;
+
+    private UsbSerialPort sPort = null;
+    private UsbManager mUsbManager;
 
     // Navigation Drawer
     private DrawerLayout drawerLayout;
@@ -74,6 +82,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        mUsbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
 
         mEditView = findViewById(R.id.edit_actions_menu);
         mFloatingActionsMenu = (FloatingActionsMenu) findViewById(R.id.edit_actions_menu);
@@ -171,12 +181,47 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void connectToDevice() {
+        // Find all available drivers from attached devices.
+        Toast.makeText(this, "Connecting", Toast.LENGTH_SHORT).show();
+
+        List<UsbSerialDriver> drivers =
+                UsbSerialProber.getDefaultProber().findAllDrivers(mUsbManager);
+
+        if (drivers.isEmpty()) {
+            Toast.makeText(this, "No drivers", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Open a connection to the first available driver.
+        UsbSerialDriver driver = drivers.get(0);
+        UsbDeviceConnection connection = mUsbManager.openDevice(driver.getDevice());
+        if (connection == null) {
+            Toast.makeText(this, "Can't Connect", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Read some data! Most have just one port (port 0).
+        sPort = driver.getPorts().get(0);
+        try {
+            sPort.open(connection);
+            sPort.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT);
+        startIoManager();
+    }
+
     /** Swaps fragments in the main content view */
     private void selectItem(int position) {
         // Depending on the selection open up a fragment or activity
         Intent intent;
         switch(position) {
             case 0: // Connect
+                //intent = new Intent(this, ConnectActivity.class);
+                //startActivity(intent);
+                connectToDevice();
                 // TODO: Implement connect code, this should not call an activity but rather a dialog box to select how to connect
                 break;
 
@@ -234,9 +279,16 @@ public class MainActivity extends Activity {
                 // User clicked OK button
                 // Create new gauge view
                 Gauge newGauge = new Gauge();
+                // TODO: Get the type of gauge
+                
+                newGauge.setType("RPM");
+
+                // Attach observer
+                gaugeData.attach(newGauge);
                 ViewGroup newGaugeView = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(R.layout.gauge_layout, null);
 
                 GaugeView gauge = (GaugeView) newGaugeView.getChildAt(0);
+                // TODO: Modify gauge settings here
 
                 // Add new gauge to root layer
                 mContentView = (ViewGroup) findViewById(R.id.content_frame);
@@ -387,18 +439,12 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        Log.d(TAG, "Resumed, port=" + sPort);
-
-        super.onResume();
-
         if (sPort == null) {
-            //mTvSerial.append("No serial device.");
+            Toast.makeText(this, "No serial device", Toast.LENGTH_SHORT).show();
         } else {
-            final UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
-
-            UsbDeviceConnection connection = usbManager.openDevice(sPort.getDriver().getDevice());
+            UsbDeviceConnection connection = mUsbManager.openDevice(sPort.getDriver().getDevice());
             if (connection == null) {
-                //mTvSerial.append("Opening device failed");
+                Toast.makeText(this, "Opening device failed", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -407,7 +453,7 @@ public class MainActivity extends Activity {
                 sPort.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
             } catch (IOException e) {
                 Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
-                //mTvSerial.append("Error opening device: " + e.getMessage());
+                Toast.makeText(this, "Error setting up device", Toast.LENGTH_SHORT);
                 try {
                     sPort.close();
                 } catch (IOException e2) {
@@ -416,7 +462,7 @@ public class MainActivity extends Activity {
                 sPort = null;
                 return;
             }
-            //mTvSerial.append("Serial device: " + sPort.getClass().getSimpleName());
+            Toast.makeText(this, "Serial device: " + sPort.getClass().getSimpleName(), Toast.LENGTH_SHORT);
         }
         onDeviceStateChange();
     }

@@ -21,4 +21,17 @@ public class SettingsActivity extends ActionBarActivity {
                 .replace(android.R.id.content, new SettingsFragment())
                 .commit();
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        // Kill activity if either action bar or physical back button is selected
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }
