@@ -30,7 +30,6 @@ public class GaugeData extends Observable {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        Toast.makeText(mContext, newData, Toast.LENGTH_SHORT).show();
         notifyObservers();
     }
 

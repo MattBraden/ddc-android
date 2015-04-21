@@ -102,14 +102,8 @@ public class MainActivity extends Activity {
         boolean landscapeLock = SP.getBoolean("landscapeLock", false);
         String clusterBackground = SP.getString("clusterBackground", "Black");
 
-        // This is the first run
-        SP.edit().putBoolean("firstrun", true).commit();
-
-        // Hide the top action bar
-        //getSupportActionBar().hide();
-
         // Display the warning only the first time MainActivity runs
-        if (SP.getBoolean("firstrun", true)) {
+        if (SP.getBoolean("firstrun", false)) {
             new AlertDialog.Builder(this)
                     .setTitle("WARNING")
                     .setMessage("The Digital Dynamic Cluster application is not permitted to be operated while a vehicle is in operation.. " +
@@ -130,21 +124,18 @@ public class MainActivity extends Activity {
                     }).setIcon(R.drawable.info).show();
         }
 
-        // Long click on main view enables edit mode
+
         ViewGroup mContentView = (ViewGroup) findViewById(R.id.content_frame);
-        mContentView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                enableEdit();
-                Log.d(TAG, "enable edit");
-                return true;
-            }
-        });
-        // Click on the main view disables edit mode
+        // Click on the main view enables/disables edit mode
         mContentView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                disableEdit();
+                if (mEditView.getVisibility() == View.VISIBLE) {
+                    disableEdit();
+                }
+                else {
+                    enableEdit();
+                }
                 Log.d(TAG, "disable edit");
             }
         });
@@ -496,27 +487,27 @@ public class MainActivity extends Activity {
 
     // TODO: Scale the gauge nicely
     public class ViewResize implements View.OnTouchListener {
-        private View resizeView;
+        private ViewGroup resizeView;
 
-        public ViewResize(View resizeView) {
+        public ViewResize(ViewGroup resizeView) {
             this.resizeView = resizeView;
         }
 
-        float centerX, centerY, startR, startScale, startX, startY;
+        float centerX, centerY, startR, startScale, startX, startY, newScale, newR;
 
         @Override
         public boolean onTouch(View v, MotionEvent e) {
             View dragHandle = v;
             if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                mFocusedGauge = (ViewGroup) v.getParent();
+                mFocusedGauge = resizeView;
 
                 // calculate center of image
                 centerX = (resizeView.getLeft() + resizeView.getRight()) / 2f;
                 centerY = (resizeView.getTop() + resizeView.getBottom()) / 2f;
 
                 // recalculate coordinates of starting point
-                startX = e.getRawX() - dragHandle.getX() + centerX;
-                startY = e.getRawY() - dragHandle.getY() + centerY;
+                startX = dragHandle.getX();
+                startY = dragHandle.getY();
 
                 // get starting distance and scale
                 startR = (float) Math.hypot(e.getRawX() - startX, e.getRawY() - startY);
@@ -525,15 +516,20 @@ public class MainActivity extends Activity {
             } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
 
                 // calculate new distance
-                float newR = (float) Math.hypot(e.getRawX() - startX, e.getRawY() - startY);
+                newR = (float) Math.hypot(e.getRawX() - startX, e.getRawY() - startY);
 
                 // set new scale
-                float newScale = newR / startR * startScale;
+                newScale = newR / startR * startScale;
                 resizeView.setScaleX(newScale);
                 resizeView.setScaleY(newScale);
 
             } else if (e.getAction() == MotionEvent.ACTION_UP) {
-
+                ViewGroup.LayoutParams lp = resizeView.getLayoutParams();
+                lp.height = (int) (resizeView.getHeight() * resizeView.getScaleX());
+                lp.width = (int) (resizeView.getWidth() * resizeView.getScaleY());
+                resizeView.setLayoutParams(lp);
+                resizeView.setScaleX(1);
+                resizeView.setScaleY(1);
                 Log.d(TAG, "Resize Done!");
             }
             return true;

@@ -30,7 +30,7 @@ public class Gauge implements Observer {
         // Check if gauge cares about new data
         Pattern typePattern = Pattern.compile(getType() + ":(\\d+)");
         Matcher m = typePattern.matcher((String)data);
-        if (m.matches()) {
+        if (m.find()) {
             ((GaugeView) view.getChildAt(0)).setValue(Float.parseFloat(m.group(1)));
         }
     }

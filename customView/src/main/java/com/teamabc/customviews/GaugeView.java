@@ -380,6 +380,10 @@ public class GaugeView extends View {
         regenerateBackground();
     }
 
+    public void onSizeChange() {
+        onSizeChanged(getWidth(), getHeight(), getWidth(), getHeight());
+    }
+
     private void regenerateBackground() {
         // Free bitmap
         if (mBackground != null) {
