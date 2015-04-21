@@ -2,21 +2,19 @@ package com.teamabc.digitaldynamiccluster;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,11 +24,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Set;
 
 import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.hoho.android.usbserial.driver.UsbSerialDriver;
@@ -41,10 +45,12 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 import com.teamabc.customviews.GaugeView;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import android.os.Handler;
 
 public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -77,6 +83,20 @@ public class MainActivity extends Activity {
     // Floating Action Button
     FloatingActionsMenu mFloatingActionsMenu;
 
+    // Bluetooth
+    TextView myLabel;
+    EditText myTextbox;
+    BluetoothAdapter mBluetoothAdapter;
+    BluetoothSocket mmSocket;
+    BluetoothDevice mmDevice;
+    OutputStream mmOutputStream;
+    InputStream mmInputStream;
+    Thread workerThread;
+    byte[] readBuffer;
+    int readBufferPosition;
+    int counter;
+    volatile boolean stopWorker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,8 +125,7 @@ public class MainActivity extends Activity {
         // This is the first run
         SP.edit().putBoolean("firstrun", true).commit();
 
-        // Hide the top action bar
-        //getSupportActionBar().hide();
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // Display the warning only the first time MainActivity runs
         if (SP.getBoolean("firstrun", true)) {
@@ -119,16 +138,19 @@ public class MainActivity extends Activity {
                             dialog.cancel();
                         }
                     }).setIcon(R.drawable.info).show();
-
-            new AlertDialog.Builder(this)
-                    .setTitle("Preferenecs")
-                    .setMessage("Cluster Configuration: " + clusterConfigName + "\n" + "Cluster Background: " + clusterBackground)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    }).setIcon(R.drawable.info).show();
         }
+
+        // Bluetooth******************************************************************************************
+        findBT();
+        try {
+            openBT();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        beginListenForData();
+
+        setContentView(R.layout.activity_main);
 
         // Long click on main view enables edit mode
         ViewGroup mContentView = (ViewGroup) findViewById(R.id.content_frame);
@@ -148,7 +170,6 @@ public class MainActivity extends Activity {
                 Log.d(TAG, "disable edit");
             }
         });
-
 
         mDrawerOptions = getResources().getStringArray(R.array.drawer_options);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -213,11 +234,13 @@ public class MainActivity extends Activity {
         startIoManager();
     }
 
-    /** Swaps fragments in the main content view */
+    /**
+     * Swaps fragments in the main content view
+     */
     private void selectItem(int position) {
         // Depending on the selection open up a fragment or activity
         Intent intent;
-        switch(position) {
+        switch (position) {
             case 0: // Connect
                 //intent = new Intent(this, ConnectActivity.class);
                 //startActivity(intent);
@@ -280,7 +303,7 @@ public class MainActivity extends Activity {
                 // Create new gauge view
                 Gauge newGauge = new Gauge();
                 // TODO: Get the type of gauge
-                
+
                 newGauge.setType("RPM");
 
                 // Attach observer
@@ -314,14 +337,13 @@ public class MainActivity extends Activity {
                 newGaugeView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                     @Override
                     public void onFocusChange(View v, boolean hasFocus) {
-                        if(hasFocus){
+                        if (hasFocus) {
                             enableEdit();
                             mFocusedGauge = (ViewGroup) v;
                             v.setBackgroundResource(R.drawable.border_background);
                             v.setOnTouchListener(new ViewMove());
                             ((ViewGroup) v).getChildAt(1).setVisibility(View.VISIBLE);
-                        }
-                        else {
+                        } else {
                             mFocusedGauge = null;
                             v.setBackground(null);
                             v.setOnTouchListener(null);
@@ -634,4 +656,110 @@ public class MainActivity extends Activity {
             }
         }
     };
+
+    void findBT() {
+        setContentView(R.layout.bluetoothtest);
+        EditText btstatus = (EditText)findViewById(R.id.entry2);
+
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null) {
+            myLabel.setText("No bluetooth adapter available");
+        }
+
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBluetooth, 0);
+        }
+
+        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice device : pairedDevices) {
+                if (device.getName().equals("DigitalDynamicCluster")) {
+                    mmDevice = device;
+                    break;
+                }
+            }
+        }
+
+        btstatus.setText("Bluetooth Device Found");
+    }
+
+    void openBT() throws IOException {
+        setContentView(R.layout.bluetoothtest);
+        EditText btstatus = (EditText)findViewById(R.id.entry2);
+        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+        mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
+        mmSocket.connect();
+        mmOutputStream = mmSocket.getOutputStream();
+        mmInputStream = mmSocket.getInputStream();
+
+        beginListenForData();
+
+        btstatus.setText("Bluetooth Opened");
+    }
+
+    void beginListenForData() {
+        final Handler handler = new Handler();
+        final byte delimiter = 10; //This is the ASCII code for a newline character
+
+        stopWorker = false;
+        readBufferPosition = 0;
+        readBuffer = new byte[1024];
+        workerThread = new Thread(new Runnable() {
+            public void run() {
+                while (!Thread.currentThread().isInterrupted() && !stopWorker) {
+                    try {
+                        int bytesAvailable = mmInputStream.available();
+                        if (bytesAvailable > 0) {
+                            byte[] packetBytes = new byte[bytesAvailable];
+                            mmInputStream.read(packetBytes);
+                            for (int i = 0; i < bytesAvailable; i++) {
+                                byte b = packetBytes[i];
+                                if (b == delimiter) {
+                                    byte[] encodedBytes = new byte[readBufferPosition];
+                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+                                    final String data = new String(encodedBytes, "US-ASCII");
+                                    readBufferPosition = 0;
+
+                                    handler.post(new Runnable() {
+                                        public void run() {
+                                            new AlertDialog.Builder(MainActivity.this)
+                                                    .setTitle("Bluetooth Data Received!")
+                                                    .setMessage("Data Received: " + data)
+                                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            dialog.cancel();
+                                                        }
+                                                    }).setIcon(R.drawable.info).show();
+                                        }
+                                    });
+                                } else {
+                                    readBuffer[readBufferPosition++] = b;
+                                }
+                            }
+                        }
+                    } catch (IOException ex) {
+                        stopWorker = true;
+                    }
+                }
+            }
+        });
+
+        workerThread.start();
+    }
+
+    void sendData() throws IOException {
+        String msg = myTextbox.getText().toString();
+        msg += "\n";
+        mmOutputStream.write(msg.getBytes());
+        myLabel.setText("Data Sent");
+    }
+
+    void closeBT() throws IOException {
+        stopWorker = true;
+        mmOutputStream.close();
+        mmInputStream.close();
+        mmSocket.close();
+        myLabel.setText("Bluetooth Closed");
+    }
 }
