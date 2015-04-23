@@ -15,18 +15,4 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:title="@string/pref_category_title_gauges">
-
-        <ListPreference
-            android:key="pref_temperature_unit"
-            android:title="@string/pref_title_temperature_unit"
-            android:summary="%s"
-            android:dialogTitle="@string/pref_title_temperature_unit"
-            android:entries="@array/pref_entries_temperature_units"
-            android:entryValues="@array/pref_entries_temperature_units"
-            android:defaultValue="@string/pref_default_temperature_unit" />
-
-    </PreferenceCategory>
-
 </PreferenceScreen>

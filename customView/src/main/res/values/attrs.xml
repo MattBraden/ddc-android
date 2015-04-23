@@ -6,6 +6,7 @@
         <attr name="labelTextColor" format="color" />
         <attr name="showValue" format="boolean" />
         <!-- Maybe add font? -->
+        <attr name="unitText" format="string" />
         <attr name="valueTextColor" format="color" />
         <attr name="scaleColor" format="color" />
         <attr name="scaleMinNumber" format="integer" />

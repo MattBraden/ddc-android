@@ -68,6 +68,7 @@ public class GaugeView extends View {
     private boolean mShowLabel;
     private String mLabelText;
     private int mLabelTextColor;
+    private String mUnitText;
     private boolean mShowValue;
     private int mValueTextColor;
     private int mScaleColor;
@@ -98,6 +99,7 @@ public class GaugeView extends View {
             mShowLabel = a.getBoolean(R.styleable.GaugeView_showLabel, true);
             mLabelText = a.getString(R.styleable.GaugeView_labelText);
             mLabelTextColor = a.getColor(R.styleable.GaugeView_labelTextColor, Color.WHITE);
+            mUnitText = a.getString(R.styleable.GaugeView_unitText);
             mShowValue = a.getBoolean(R.styleable.GaugeView_showValue, true);
             mValueTextColor = a.getColor(R.styleable.GaugeView_valueTextColor, Color.WHITE);
             mScaleColor = a.getColor(R.styleable.GaugeView_scaleColor, Color.WHITE);
@@ -234,8 +236,8 @@ public class GaugeView extends View {
 
         float currentAngle = mScaleStartDegrees;
         // Find number of nicks
-        // TODO: Fix so this only displays "nice" numbers
-        degreesPerNick = (mScaleEndDegrees - mScaleStartDegrees) / mScaleTotalNicks;
+
+        degreesPerNick = (mScaleEndDegrees - mScaleStartDegrees) / (mScaleTotalNicks);
         for (int i = 0; i <= mScaleTotalNicks; ++i) {
             float y1 = mScaleRect.top;
             float y2 = y1 - 0.05f;
@@ -330,6 +332,11 @@ public class GaugeView extends View {
             canvas.drawText(mLabelText, 0.5f, 0.8f, mLabelTextPaint);
     }
 
+    private void drawUnit(Canvas canvas) {
+        if (mUnitText != null) {
+            canvas.drawText(mUnitText, 0.5f, 0.35f, mLabelTextPaint);
+        }
+    }
     private void drawValue(Canvas canvas) {
         if (mShowValue)
             canvas.drawText(String.format("%.0f", mNeedleValue), 0.5f, 0.65f, mValueTextPaint);
@@ -351,7 +358,7 @@ public class GaugeView extends View {
             }
         }, mNeedleValue, newValue);
 
-        va.setDuration(250);
+        va.setDuration(50);
         // Update value
         va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -423,6 +430,7 @@ public class GaugeView extends View {
         }
 
         drawLabel(backgroundCanvas);
+        drawUnit(backgroundCanvas);
         drawScale(backgroundCanvas);
     }
 
@@ -497,6 +505,16 @@ public class GaugeView extends View {
 
     public void setLabelTextColor(int mLabelTextColor) {
         this.mLabelTextColor = mLabelTextColor;
+        invalidate();
+    }
+
+
+    public String getUnitText() {
+        return mUnitText;
+    }
+
+    public void setUnitText(String mUnitText) {
+        this.mUnitText = mUnitText;
         invalidate();
     }
 

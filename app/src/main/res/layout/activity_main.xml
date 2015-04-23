@@ -40,6 +40,16 @@
                 android:onClick="addGauge"/>
 
             <com.getbase.floatingactionbutton.FloatingActionButton
+                android:id="@+id/bring_to_front"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                fab:fab_colorNormal="@color/green"
+                fab:fab_colorPressed="@color/green_pressed"
+                fab:fab_title="Bring to Front"
+                fab:fab_icon="@drawable/ic_action_new"
+                android:onClick="bringToFront"/>
+            <!--
+            <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/edit_gauge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -48,6 +58,7 @@
                 fab:fab_title="Edit Gauge"
                 fab:fab_icon="@drawable/ic_action_edit"
                 android:onClick="editGauge"/>
+            -->
 
             <com.getbase.floatingactionbutton.FloatingActionButton
                 android:id="@+id/remove_gauge"

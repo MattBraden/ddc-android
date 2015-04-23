@@ -13,18 +13,69 @@
     <string name="gauge_type_select">Type</string>
     <string name="gauge_style_select">Style</string>
 
-    <string name="refreshing">Refreshing...</string>
-
     <string-array name="gauge_types">
+        <item>Engine Speed</item>
+        <item>Throttle Position</item>
+        <item>Coolant Temperature</item>
+        <item>Intake Temperature</item>
+        <item>Manifold Absolute Pressure</item>
+        <item>Knock Retard</item>
+        <item>O2 Bank 1</item>
+        <item>O2 Bank 2</item>
+    </string-array>
+
+    <string-array name="gauge_type_values">
         <item>RPM</item>
-        <item>Speed</item>
-        <item>Coolant Temp</item>
+        <item>TPS</item>
+        <item>CLT</item>
+        <item>IAT</item>
+        <item>MAP</item>
+        <item>KR</item>
+        <item>O21</item>
+        <item>O22</item>
+    </string-array>
+
+    <string-array name="gauge_units">
+        <item>RPM</item>
+        <item>%</item>
+        <item>°F</item>
+        <item>°F</item>
+        <item>kPa</item>
+        <item>°</item>
+        <item>A/F</item>
+        <item>A/F</item>
     </string-array>
 
     <string-array name="gauge_styles">
-        <item>sytle 1</item>
-        <item>style 2</item>
+        <item>Gauge</item>
+        <item>Text</item>
     </string-array>
+
+    <string-array name="gauge_colors">
+        <item>Black</item>
+        <item>White</item>
+        <item>Red</item>
+        <item>Blue</item>
+        <item>Green</item>
+        <item>Yellow</item>
+        <item>Orange</item>
+    </string-array>
+
+    <array name="colors">
+        <item>@color/black</item>
+        <item>@color/white</item>
+        <item>@color/red</item>
+        <item>@color/blue</item>
+        <item>@color/green</item>
+        <item>@color/yellow</item>
+        <item>@color/orange</item>
+    </array>
+
+    <string name="text_color_select">Text Color</string>
+    <string name="gauge_face_color_select">Face Color</string>
+    <string name="gauge_min_value_select">Min Value</string>
+    <string name="gauge_max_value_select">Max Value</string>
+    <string name="gauge_ticks_select">Amount of Ticks</string>
 
     <!-- Menu actions -->
     <string name="action_settings">Settings</string>
@@ -49,26 +100,11 @@
     </string-array>
     <string name="pref_default_connection_type">USB</string>
 
-    <string name="pref_category_title_gauges">Gauge</string>
-    <string name="pref_title_temperature_unit">Temperature Unit</string>
-    <string-array name="pref_entries_temperature_units">
-        <item>Fahrenheit</item>
-        <item>Celsius</item>
-    </string-array>
-    <string name="pref_default_temperature_unit">Fahrenheit</string>
-
     <!-- About -->
     <string name="about_description">The Digital Dynamic Cluster is a solution for car enthusiasts seeking a modern solution to engine data display to replace mechanical or other options that do not suit the needs of their driving style. The Digital Dynamic Cluster offers a customizable interface that allows users to present data in their own unique way using a touch screen display device (Android Tablet). Data is taken from the vehicle via CAN bus to the transceiver board where it is processed, then transmitted to the display via USB. Additionally, users may connect an additional Android device via Bluetooth wireless communication. This system is comprised of a transceiver board that houses a CAN bus, USB, and Bluetooth interface as well as a touch screen display. Team ABC designed the Android application and the transceiver board, which hosts a number of surface mount components to maintain a small form factor. As a result, the Digital Dynamic Cluster is able to provide accurate information to the user in the form of digital gauges and readouts in such a way to conform to each individual\'s unique requirements depending on their driving experience. Team ABC is proud to offer such a aesthetically pleasing and reliable system for easy integration into existing automotive applications.
 </string>
     <string name="about_contributors_title">Contributors</string>
     <string name="about_contributors">Jacob Anderson\nMatt Braden\nKenton Carson</string>
-    <string name="title_activity_device_list">DeviceListActivity</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="title_activity_serial_console">SerialConsoleActivity</string>
-    <string name="title_activity_connect">Connect</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="drawer_open">Open navigation drawer</string>
-    <string name="drawer_close">Close navigation drawer</string>
     <string name="agreement">I agree</string>
 
     <string-array name="drawer_options">

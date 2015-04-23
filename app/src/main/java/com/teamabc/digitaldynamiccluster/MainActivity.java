@@ -26,9 +26,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -113,15 +115,6 @@ public class MainActivity extends Activity {
                             dialog.cancel();
                         }
                     }).setIcon(R.drawable.info).show();
-
-            new AlertDialog.Builder(this)
-                    .setTitle("Preferenecs")
-                    .setMessage("Cluster Configuration: " + clusterConfigName + "\n" + "Cluster Background: " + clusterBackground)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    }).setIcon(R.drawable.info).show();
         }
 
 
@@ -174,13 +167,11 @@ public class MainActivity extends Activity {
 
     private void connectToDevice() {
         // Find all available drivers from attached devices.
-        Toast.makeText(this, "Connecting", Toast.LENGTH_SHORT).show();
-
         List<UsbSerialDriver> drivers =
                 UsbSerialProber.getDefaultProber().findAllDrivers(mUsbManager);
 
         if (drivers.isEmpty()) {
-            Toast.makeText(this, "No drivers", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Can't Connect", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -210,8 +201,6 @@ public class MainActivity extends Activity {
         Intent intent;
         switch(position) {
             case 0: // Connect
-                //intent = new Intent(this, ConnectActivity.class);
-                //startActivity(intent);
                 connectToDevice();
                 // TODO: Implement connect code, this should not call an activity but rather a dialog box to select how to connect
                 break;
@@ -264,21 +253,75 @@ public class MainActivity extends Activity {
 
         // Set custom view
         builder.setView(addGaugeView);
+
+        //final Spinner gaugeStyleSelect = (Spinner) addGaugeView.findViewById(R.id.gauge_style_select);
+        final Spinner gaugeTypeSelect = (Spinner) addGaugeView.findViewById(R.id.gauge_type_select);
+        //final Spinner gaugeTextColorSelect = (Spinner) addGaugeView.findViewById(R.id.text_color_select);
+        //final Spinner gaugeColorSelect = (Spinner) addGaugeView.findViewById(R.id.gauge_face_color_select);
+        final EditText gaugeMinValueSelect = (EditText) addGaugeView.findViewById(R.id.gauge_min_value_select);
+        final EditText gaugeMaxValueSelect = (EditText) addGaugeView.findViewById(R.id.gauge_max_value_select);
+        final EditText gaugeGaugeNicksSelect = (EditText) addGaugeView.findViewById(R.id.gauge_ticks_select);
+        final String[] gaugeTypeSelectValues = getResources().getStringArray(R.array.gauge_type_values);
+        final String[] gaugeUnitValues = getResources().getStringArray(R.array.gauge_units);
+        final int[] colorValues = getResources().getIntArray(R.array.colors);
+
+        /*
+        spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int position, long id) {
+                //Get the selected value
+                int selectedValue = selectedValues.getInt(position, -1);
+                Log.d("demo", "selectedValues = " + selectedValue);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+                // TODO Auto-generated method stub
+
+            }
+        });
+        */
         // Add the buttons
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
-                // Create new gauge view
+                // Create new gauge or text view
                 Gauge newGauge = new Gauge();
-                // TODO: Get the type of gauge
-                
-                newGauge.setType("RPM");
+
+                newGauge.setType(gaugeTypeSelectValues[gaugeTypeSelect.getSelectedItemPosition()]);
 
                 // Attach observer
                 gaugeData.attach(newGauge);
                 ViewGroup newGaugeView = (ViewGroup) LayoutInflater.from(getBaseContext()).inflate(R.layout.gauge_layout, null);
 
+
                 GaugeView gauge = (GaugeView) newGaugeView.getChildAt(0);
+                gauge.setLabelText(gaugeTypeSelectValues[gaugeTypeSelect.getSelectedItemPosition()]);
+                gauge.setUnitText(gaugeUnitValues[gaugeTypeSelect.getSelectedItemPosition()]);
+                if (gaugeMinValueSelect.getText().toString() != "") {
+                    gauge.setScaleMinNumber(Integer.parseInt(gaugeMinValueSelect.getText().toString()));
+                }
+                if (gaugeMaxValueSelect.getText().toString() != "") {
+                    gauge.setScaleMaxNumber(Integer.parseInt(gaugeMaxValueSelect.getText().toString()));
+                }
+
+
+                if (gaugeGaugeNicksSelect.getText().toString() != "") {
+                    int ticks = Integer.parseInt(gaugeGaugeNicksSelect.getText().toString());
+                    if (ticks <= 0) {
+                        ticks = 1;
+                    }
+                    else {
+                        ticks += 1;
+                    }
+                    gauge.setScaleTotalNicks(ticks);
+                }
+
+
+                //gauge.setGaugeFaceColor(colorValues[gaugeColorSelect.getSelectedItemPosition()]);
+                //gauge.setScaleColor(colorValues[gaugeColorSelect.getSelectedItemPosition()]);
                 // TODO: Modify gauge settings here
 
                 // Add new gauge to root layer
@@ -346,6 +389,15 @@ public class MainActivity extends Activity {
         AlertDialog dialog = builder.create();
 
         dialog.show();
+    }
+
+    public void bringToFront(View v) {
+        // Collapse floating action menu
+        mFloatingActionsMenu.collapse();
+        if (mFocusedGauge == null) {
+            Toast.makeText(this, "Please select a gauge first", Toast.LENGTH_SHORT).show();
+        }
+        mFocusedGauge.bringToFront();
     }
 
     // Remove focused gauge
@@ -430,31 +482,8 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        if (sPort == null) {
-            Toast.makeText(this, "No serial device", Toast.LENGTH_SHORT).show();
-        } else {
-            UsbDeviceConnection connection = mUsbManager.openDevice(sPort.getDriver().getDevice());
-            if (connection == null) {
-                Toast.makeText(this, "Opening device failed", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            try {
-                sPort.open(connection);
-                sPort.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
-            } catch (IOException e) {
-                Log.e(TAG, "Error setting up device: " + e.getMessage(), e);
-                Toast.makeText(this, "Error setting up device", Toast.LENGTH_SHORT);
-                try {
-                    sPort.close();
-                } catch (IOException e2) {
-                    // Ignore.
-                }
-                sPort = null;
-                return;
-            }
-            Toast.makeText(this, "Serial device: " + sPort.getClass().getSimpleName(), Toast.LENGTH_SHORT);
-        }
+        // TODO: check if bluetooth or usb
+        connectToDevice();
         onDeviceStateChange();
     }
 
