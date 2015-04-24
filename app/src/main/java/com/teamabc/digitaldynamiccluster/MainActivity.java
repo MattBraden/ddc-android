@@ -5,6 +5,9 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +16,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
@@ -43,8 +47,12 @@ import com.hoho.android.usbserial.util.SerialInputOutputManager;
 import com.teamabc.customviews.GaugeView;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -78,6 +86,20 @@ public class MainActivity extends Activity {
 
     // Floating Action Button
     FloatingActionsMenu mFloatingActionsMenu;
+
+    // Bluetooth
+    TextView myLabel;
+    EditText myTextbox;
+    BluetoothAdapter mBluetoothAdapter;
+    BluetoothSocket mmSocket;
+    BluetoothDevice mmDevice;
+    OutputStream mmOutputStream;
+    InputStream mmInputStream;
+    Thread workerThread;
+    byte[] readBuffer;
+    int readBufferPosition;
+    int counter;
+    volatile boolean stopWorker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,7 +187,21 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void connectToDevice() {
+    /*
+    private void connectToBluetoothDevice() {
+        // Bluetooth******************************************************************************************
+        findBT();
+        try {
+            openBT();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        beginListenForData();
+    }
+    */
+
+    private void connectToUSBDevice() {
         // Find all available drivers from attached devices.
         List<UsbSerialDriver> drivers =
                 UsbSerialProber.getDefaultProber().findAllDrivers(mUsbManager);
@@ -187,7 +223,7 @@ public class MainActivity extends Activity {
         sPort = driver.getPorts().get(0);
         try {
             sPort.open(connection);
-            sPort.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+            sPort.setParameters(76800, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -201,7 +237,7 @@ public class MainActivity extends Activity {
         Intent intent;
         switch(position) {
             case 0: // Connect
-                connectToDevice();
+                connectToUSBDevice();
                 // TODO: Implement connect code, this should not call an activity but rather a dialog box to select how to connect
                 break;
 
@@ -483,7 +519,8 @@ public class MainActivity extends Activity {
         super.onResume();
 
         // TODO: check if bluetooth or usb
-        connectToDevice();
+        connectToUSBDevice();
+        //connectToBluetoothDevice();
         onDeviceStateChange();
     }
 
@@ -659,4 +696,112 @@ public class MainActivity extends Activity {
             }
         }
     };
+
+    /*
+    void findBT() {
+        setContentView(R.layout.bluetoothtest);
+        EditText btstatus = (EditText)findViewById(R.id.entry2);
+
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null) {
+            myLabel.setText("No bluetooth adapter available");
+        }
+
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBluetooth, 0);
+        }
+
+        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice device : pairedDevices) {
+                if (device.getName().equals("DigitalDynamicCluster")) {
+                    mmDevice = device;
+                    break;
+                }
+            }
+        }
+
+        btstatus.setText("Bluetooth Device Found");
+    }
+
+    void openBT() throws IOException {
+        setContentView(R.layout.bluetoothtest);
+        EditText btstatus = (EditText)findViewById(R.id.entry2);
+        UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
+        mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
+        mmSocket.connect();
+        mmOutputStream = mmSocket.getOutputStream();
+        mmInputStream = mmSocket.getInputStream();
+
+        beginListenForData();
+
+        btstatus.setText("Bluetooth Opened");
+    }
+
+    void beginListenForData() {
+        final Handler handler = new Handler();
+        final byte delimiter = 10; //This is the ASCII code for a newline character
+
+        stopWorker = false;
+        readBufferPosition = 0;
+        readBuffer = new byte[1024];
+        workerThread = new Thread(new Runnable() {
+            public void run() {
+                while (!Thread.currentThread().isInterrupted() && !stopWorker) {
+                    try {
+                        int bytesAvailable = mmInputStream.available();
+                        if (bytesAvailable > 0) {
+                            byte[] packetBytes = new byte[bytesAvailable];
+                            mmInputStream.read(packetBytes);
+                            for (int i = 0; i < bytesAvailable; i++) {
+                                byte b = packetBytes[i];
+                                if (b == delimiter) {
+                                    byte[] encodedBytes = new byte[readBufferPosition];
+                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+                                    final String data = new String(encodedBytes, "US-ASCII");
+                                    readBufferPosition = 0;
+
+                                    handler.post(new Runnable() {
+                                        public void run() {
+                                            new AlertDialog.Builder(MainActivity.this)
+                                                    .setTitle("Bluetooth Data Received!")
+                                                    .setMessage("Data Received: " + data)
+                                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            dialog.cancel();
+                                                        }
+                                                    }).setIcon(R.drawable.info).show();
+                                        }
+                                    });
+                                } else {
+                                    readBuffer[readBufferPosition++] = b;
+                                }
+                            }
+                        }
+                    } catch (IOException ex) {
+                        stopWorker = true;
+                    }
+                }
+            }
+        });
+
+        workerThread.start();
+    }
+
+    void sendData() throws IOException {
+        String msg = myTextbox.getText().toString();
+        msg += "\n";
+        mmOutputStream.write(msg.getBytes());
+        myLabel.setText("Data Sent");
+    }
+
+    void closeBT() throws IOException {
+        stopWorker = true;
+        mmOutputStream.close();
+        mmInputStream.close();
+        mmSocket.close();
+        myLabel.setText("Bluetooth Closed");
+    }
+    */
 }
