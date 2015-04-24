@@ -56,6 +56,10 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import app.akexorcist.bluetotohspp.library.BluetoothSPP;
+import app.akexorcist.bluetotohspp.library.BluetoothState;
+import app.akexorcist.bluetotohspp.library.DeviceList;
+
 public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -100,6 +104,7 @@ public class MainActivity extends Activity {
     int readBufferPosition;
     int counter;
     volatile boolean stopWorker;
+    BluetoothSPP bt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,18 +171,67 @@ public class MainActivity extends Activity {
         // Set the list's click listener
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
+        bt = new BluetoothSPP(this);
+        bt.setOnDataReceivedListener(new BluetoothSPP.OnDataReceivedListener() {
+            public void onDataReceived(byte[] data, String message) {
+                 Toast.makeText(getBaseContext(), "Data", Toast.LENGTH_SHORT).show();
+            }
+        });
 
-        // Navigation Drawer
-        // TODO: Reimplement this code.  Sorry Jacob I was trying some stuff out.
-        /*
-        listView = (ListView) findViewById(R.id.drawerList);
-        drawerLayout = (DrawerLayout) findViewById(R.id.mainActivityLayout);
-        myAdapter = new MyAdapter(this);
-        listView.setAdapter(myAdapter);
-        listView.setOnItemClickListener(this);
-        */
+        bt.setBluetoothConnectionListener(new BluetoothSPP.BluetoothConnectionListener() {
+            public void onDeviceConnected(String name, String address) {
+                Toast.makeText(getBaseContext(), "Bluetooth Connected", Toast.LENGTH_SHORT);
+            }
+
+            public void onDeviceDisconnected() {
+                Toast.makeText(getBaseContext(), "Bluetooth Disconnected", Toast.LENGTH_SHORT);
+            }
+
+            public void onDeviceConnectionFailed() {
+                Toast.makeText(getBaseContext(), "Bluetooth Failed", Toast.LENGTH_SHORT);
+            }
+        });
+
 
         SP.edit().putBoolean("firstrun", false).commit();
+    }
+
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
+            if(resultCode == Activity.RESULT_OK)
+                bt.connect(data);
+        } else if(requestCode == BluetoothState.REQUEST_ENABLE_BT) {
+            if(resultCode == Activity.RESULT_OK) {
+                bt.setupService();
+                bt.startService(BluetoothState.DEVICE_OTHER);
+            } else {
+                // Do something if user doesn't choose any device (Pressed back)
+            }
+        }
+    }
+
+    /*
+    public void setup() {
+        bt.setOnDataReceivedListener(new BluetoothSPP.OnDataReceivedListener() {
+            public void onDataReceived(byte[] data, String message) {
+                Log.d(TAG, "Data received");
+            }
+        });
+    }
+    */
+
+    public void onStart() {
+        super.onStart();
+        if (!bt.isBluetoothEnabled()) {
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(intent, BluetoothState.REQUEST_ENABLE_BT);
+        } else {
+            if(!bt.isServiceAvailable()) {
+                bt.setupService();
+                bt.startService(BluetoothState.DEVICE_OTHER);
+            }
+        }
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -187,19 +241,27 @@ public class MainActivity extends Activity {
         }
     }
 
-    /*
     private void connectToBluetoothDevice() {
-        // Bluetooth******************************************************************************************
-        findBT();
+        if(!bt.isBluetoothAvailable()) {
+            // any command for bluetooth is not available
+            Log.d(TAG, "Bluetooth unavailable");
+        }
+
+        Intent intent = new Intent(getApplicationContext(), DeviceList.class);
+        startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
+
+        //bt.autoConnect("DigitalDynamicCluster");
+
+        /*
         try {
+
+            findBT();
             openBT();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        beginListenForData();
+        */
     }
-    */
 
     private void connectToUSBDevice() {
         // Find all available drivers from attached devices.
@@ -207,7 +269,7 @@ public class MainActivity extends Activity {
                 UsbSerialProber.getDefaultProber().findAllDrivers(mUsbManager);
 
         if (drivers.isEmpty()) {
-            Toast.makeText(this, "Can't Connect", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Can't Connect", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -215,7 +277,7 @@ public class MainActivity extends Activity {
         UsbSerialDriver driver = drivers.get(0);
         UsbDeviceConnection connection = mUsbManager.openDevice(driver.getDevice());
         if (connection == null) {
-            Toast.makeText(this, "Can't Connect", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Can't Connect", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -223,8 +285,9 @@ public class MainActivity extends Activity {
         sPort = driver.getPorts().get(0);
         try {
             sPort.open(connection);
-            sPort.setParameters(76800, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
+            sPort.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE);
         } catch (IOException e) {
+            Toast.makeText(this, "Connected", Toast.LENGTH_SHORT);
             e.printStackTrace();
         }
         Toast.makeText(this, "Connected", Toast.LENGTH_SHORT);
@@ -237,8 +300,8 @@ public class MainActivity extends Activity {
         Intent intent;
         switch(position) {
             case 0: // Connect
-                connectToUSBDevice();
-                // TODO: Implement connect code, this should not call an activity but rather a dialog box to select how to connect
+                connectToBluetoothDevice();
+                //connectToUSBDevice();
                 break;
 
             case 1: // Layouts
@@ -336,15 +399,15 @@ public class MainActivity extends Activity {
                 GaugeView gauge = (GaugeView) newGaugeView.getChildAt(0);
                 gauge.setLabelText(gaugeTypeSelectValues[gaugeTypeSelect.getSelectedItemPosition()]);
                 gauge.setUnitText(gaugeUnitValues[gaugeTypeSelect.getSelectedItemPosition()]);
-                if (gaugeMinValueSelect.getText().toString() != "") {
+                if (gaugeMinValueSelect.getText().toString() != null) {
                     gauge.setScaleMinNumber(Integer.parseInt(gaugeMinValueSelect.getText().toString()));
                 }
-                if (gaugeMaxValueSelect.getText().toString() != "") {
+                if (gaugeMaxValueSelect.getText().toString() != null) {
                     gauge.setScaleMaxNumber(Integer.parseInt(gaugeMaxValueSelect.getText().toString()));
                 }
 
 
-                if (gaugeGaugeNicksSelect.getText().toString() != "") {
+                if (gaugeGaugeNicksSelect.getText().toString() != null) {
                     int ticks = Integer.parseInt(gaugeGaugeNicksSelect.getText().toString());
                     if (ticks <= 0) {
                         ticks = 1;
@@ -519,9 +582,9 @@ public class MainActivity extends Activity {
         super.onResume();
 
         // TODO: check if bluetooth or usb
-        connectToUSBDevice();
+        //connectToUSBDevice();
         //connectToBluetoothDevice();
-        onDeviceStateChange();
+        //onDeviceStateChange();
     }
 
     private void stopIoManager() {
@@ -697,11 +760,7 @@ public class MainActivity extends Activity {
         }
     };
 
-    /*
     void findBT() {
-        setContentView(R.layout.bluetoothtest);
-        EditText btstatus = (EditText)findViewById(R.id.entry2);
-
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {
             myLabel.setText("No bluetooth adapter available");
@@ -721,13 +780,9 @@ public class MainActivity extends Activity {
                 }
             }
         }
-
-        btstatus.setText("Bluetooth Device Found");
     }
 
     void openBT() throws IOException {
-        setContentView(R.layout.bluetoothtest);
-        EditText btstatus = (EditText)findViewById(R.id.entry2);
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); //Standard SerialPortService ID
         mmSocket = mmDevice.createRfcommSocketToServiceRecord(uuid);
         mmSocket.connect();
@@ -735,8 +790,6 @@ public class MainActivity extends Activity {
         mmInputStream = mmSocket.getInputStream();
 
         beginListenForData();
-
-        btstatus.setText("Bluetooth Opened");
     }
 
     void beginListenForData() {
@@ -764,14 +817,7 @@ public class MainActivity extends Activity {
 
                                     handler.post(new Runnable() {
                                         public void run() {
-                                            new AlertDialog.Builder(MainActivity.this)
-                                                    .setTitle("Bluetooth Data Received!")
-                                                    .setMessage("Data Received: " + data)
-                                                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                                        public void onClick(DialogInterface dialog, int which) {
-                                                            dialog.cancel();
-                                                        }
-                                                    }).setIcon(R.drawable.info).show();
+                                            //Toast.makeText(getBaseContext(), data, Toast.LENGTH_SHORT).show();
                                         }
                                     });
                                 } else {
@@ -789,13 +835,6 @@ public class MainActivity extends Activity {
         workerThread.start();
     }
 
-    void sendData() throws IOException {
-        String msg = myTextbox.getText().toString();
-        msg += "\n";
-        mmOutputStream.write(msg.getBytes());
-        myLabel.setText("Data Sent");
-    }
-
     void closeBT() throws IOException {
         stopWorker = true;
         mmOutputStream.close();
@@ -803,5 +842,4 @@ public class MainActivity extends Activity {
         mmSocket.close();
         myLabel.setText("Bluetooth Closed");
     }
-    */
 }
